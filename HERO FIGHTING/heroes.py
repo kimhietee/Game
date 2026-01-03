@@ -1564,6 +1564,8 @@ class Item:
             print(frame_type, 'asd')
             if attack_count == "immortality_count": # THERES NO OTHER WAY :(
                 attack_count = (5, 10)
+            elif attack_count == "temp_hp_count":
+                attack_count = (5, 9)
             self.attack_frames = self.load_img_frames_v2(attack_frames, attack_count, starts_at_zero, size, frame_type)
         self.attack_frame_duration = attack_frame_duration
         self.attack_repeat = attack_repeat
@@ -1633,6 +1635,7 @@ class Item:
             "heal_when_low": "Convalescent",
             "extra_temp_hp": "Absorption",
             "immortality": "Immortality",
+            "temp_hp_increase": "Safeguard",
 
 
             # Health / Mana
@@ -1670,6 +1673,7 @@ class Item:
         ability_types = {
             "heal_when_low": "passive",
             "immortality": "passive",
+            "temp_hp_increase": "passive"
 
                          }
         
@@ -2511,7 +2515,7 @@ def player_selection():
     item_gap_x = 75
     item_gap_y = 100
 
-    item_spacing_w = 6
+    item_spacing_w = 7
     def position_alignnment_Y(max_width:int, indexed:int, height_gap = upper, item_gap_x = item_gap_x, item_gap_y = item_gap_y):
         indexed = indexed - 1
         new_indexed = 1 + (indexed - (max_width) * ((indexed) // (max_width)))
@@ -2978,13 +2982,13 @@ def player_selection():
                     # ------------------------------
                     # --- Create bots for both teams ---
                     hero1_group.add(
-                        *(create_bot(PLAYER_1_SELECTED_HERO if not global_vars.random_pick_p1 else random.choice(heroes), PLAYER_1, hero2)(hero2, hero2) for _ in range(5))
+                        *(create_bot(PLAYER_1_SELECTED_HERO if not global_vars.random_pick_p1 else random.choice(heroes), PLAYER_1, hero2)(hero2, hero2) for _ in range(4))
                     )
 
                     
 
                     hero2_group.add(
-                        *(create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, hero1)(hero1, hero1) for _ in range(5))
+                        *(create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, hero1)(hero1, hero1) for _ in range(4))
                     )
 
                     hero1_group.add(hero1)

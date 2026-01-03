@@ -1,6 +1,22 @@
 {
   "items": [
     {
+      "name": "Last Breath",
+      "image_path": "assets/item icons/new items/2 Icons with back/Icons_04.png",
+      "bonus_type": ["heal_when_low", "all_stats_flat"],
+      "bonus_value": [1.0, 1],
+      "description": "When health falls below 10%, instantly@restores health equal to Strength.@@Cooldown: 120s",
+      "cooldown": 120,
+      "attack_frames": "assets/attacks_item/Last Breath/image_",
+      "attack_count": 8,
+      "attack_frame_duration": 125,
+      "attack_repeat": 5,
+      "starts_at_zero": true,
+      "size": 2,
+      "sound_path": "pass muna bro",
+      "frame_type": "frames"
+    },
+    {
       "name": "War Helmet",
       "image_path": "assets/item icons/in use/Icons_40.png",
       "bonus_type": ["str_per", "str_flat", "hp_regen_per"],
@@ -39,6 +55,16 @@
       "bonus_type": ["hp_regen_per", "mana_regen_per"],
       "bonus_value": [-0.3, 0.3],
       "description": "Greatly increases mana regeneration@at the cost of health regeneration."
+    },
+
+
+
+    {
+      "name": "Unwavering Banner",
+      "image_path": "assets/item icons/2 Icons with back/Icons_05.png",
+      "bonus_type": ["extra_temp_hp"],
+      "bonus_value": [40.0],
+      "description": "Grants 40 temporary HP that absorbs@damage before affecting real health."
     },
     {
       "name": "Crimson Hearthstone",
@@ -82,6 +108,27 @@
       "bonus_value": [0.75],
       "description": "Converts 75% damage dealt to enemy into@mana and grants to the attacker."
     },
+
+
+
+
+
+    {
+      "name": "Ancient Elixir",
+      "image_path": "assets/item icons/2 Icons with back/Icons_35.png",
+      "bonus_type": ["immortality"],
+      "bonus_value": [1],
+      "description": "When taking damage that can kill the hero, becomes@immune to all damage for 7 seconds. Health is@reduced to 1 if activated.@@Cooldown: 240s",
+      "cooldown": 240,
+      "attack_frames": "assets\\attacks_item\\Immortality Elixir\\activation_frames.PNG",
+      "attack_count": "immortality_count",
+      "attack_frame_duration": 70,
+      "attack_repeat": 2,
+      "starts_at_zero": true,
+      "size": 0.7,
+      "sound_path": "pass muna bro",
+      "frame_type": "spritesheet"
+    },
     {
       "name": "Crimson Crystal",
       "image_path": "assets/item icons/new items/2 Icons with back/Icons_24.png",
@@ -118,6 +165,25 @@
       "image_path": "assets/item icons/in use/Icons_26.png",
       "bonus_type": ["int_per", "int_flat", "mana_regen_per"],
       "bonus_value": [0.1, 4.0, 0.08]
+    },
+
+
+
+    {
+      "name": "Wrench of Protection",
+      "image_path": "assets/item icons/2 Icons with back/Icons_34.png",
+      "bonus_type": ["temp_hp_increase"],
+      "bonus_value": [10],
+      "description": "Periodically grants 10 temporary HP that@absorbs damage for every 60 seconds.@@Cooldown: 60s",
+      "cooldown": 60,
+      "attack_frames": "assets\\attacks_item\\Wrench of Protection\\activation_frames.PNG",
+      "attack_count": "temp_hp_count",
+      "attack_frame_duration": 66.66, 
+      "attack_repeat": 1,
+      "starts_at_zero": true,
+      "size": 0.7,
+      "sound_path": "pass muna bro",
+      "frame_type": "spritesheet"
     },
     {
       "name": "Old Axe",
@@ -164,44 +230,13 @@
       "bonus_value": [0.2],
       "description": "Returns 20% of damage taken to attacker."
     },
+    
     {
-      "name": "Last Breath",
-      "image_path": "assets/item icons/new items/2 Icons with back/Icons_04.png",
-      "bonus_type": ["heal_when_low", "all_stats_flat"],
-      "bonus_value": [1.0, 1],
-      "description": "When health falls below 10%, instantly@restores health equal to Strength.@@Cooldown: 120s",
-      "cooldown": 120,
-      "attack_frames": "assets/attacks_item/Last Breath/image_",
-      "attack_count": 8,
-      "attack_frame_duration": 125,
-      "attack_repeat": 5,
-      "starts_at_zero": true,
-      "size": 2,
-      "sound_path": "pass muna bro",
-      "frame_type": "frames"
-    },
-    {
-      "name": "Unwavering Banner",
-      "image_path": "assets/item icons/2 Icons with back/Icons_05.png",
-      "bonus_type": ["extra_temp_hp"],
-      "bonus_value": [40.0],
-      "description": "Grants 40 temporary HP that absorbs@damage before affecting real health."
-    },
-    {
-      "name": "Ancient Elixir",
-      "image_path": "assets/item icons/2 Icons with back/Icons_35.png",
-      "bonus_type": ["immortality"],
-      "bonus_value": [1],
-      "description": "When taking damage that can kill the hero, becomes@immune to all damage for 7 seconds. Health@reduced to 1 if activated.@@Cooldown: 240s",
-      "cooldown": 240,
-      "attack_frames": "assets\\attacks_item\\Immortality Elixir\\activation_frames.PNG",
-      "attack_count": "immortality_count",
-      "attack_frame_duration": 70,
-      "attack_repeat": 2,
-      "starts_at_zero": true,
-      "size": 0.7,
-      "sound_path": "pass muna bro",
-      "frame_type": "spritesheet"
+      "name": "nothing",
+      "image_path": "assets/item icons/new items/2 Icons with back/Icons_01.png",
+      "bonus_type": [],
+      "bonus_value": [],
+      "description": "Does nothing."
     }
     
   ]

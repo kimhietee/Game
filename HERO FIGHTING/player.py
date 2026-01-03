@@ -116,10 +116,11 @@ class Player(pygame.sprite.Sprite):
         self.max_temp_hp = 0
         self.temp_hp = self.max_temp_hp
 
-        self.has_immortality = False
         self.immortality_activated = False
         self.immortality_duration = 0
 
+        self.temp_increase_activated = False
+        self.temp_increase_cooldown = 0
 
         self.str_mult = 5
         self.int_mult = 5
@@ -1394,10 +1395,7 @@ class Player(pygame.sprite.Sprite):
         hp_ratio = max(0, min(1, self.health / self.max_health))
 
         # Calculate extension for temp_hp
-        if self.max_health > 0:
-            extension_width = int((self.max_temp_hp / self.max_health) * bar_width)
-        else:
-            extension_width = 0
+        extension_width = int((self.temp_hp / self.max_health) * bar_width)
 
         # Health bar position (centered)
         bar_x = self.hitbox_rect.centerx - bar_width // 2
@@ -1411,8 +1409,8 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(screen, green, (bar_x, bar_y, green_width, bar_height))
 
         # Temp HP (gold extension)
-        if self.max_temp_hp > 0:
-            temp_ratio = max(0, min(1, self.temp_hp / self.max_temp_hp))
+        if self.temp_hp > 0:
+            temp_ratio = max(0, min(1, self.temp_hp))
             temp_width = int(temp_ratio * extension_width)
             pygame.draw.rect(screen, gold, (bar_x + green_width, bar_y, temp_width, bar_height))
     def draw_mana_bar(self, screen):
@@ -2009,6 +2007,12 @@ class Player(pygame.sprite.Sprite):
             return
         self.health = max(0, self.health + heal)
         self.display_damage(heal, color=green, health_modify=True)
+
+    def take_temp_hp(self, temp_heal): # add health
+        if self.is_dead():
+            return
+        self.temp_hp = max(0, self.temp_hp + temp_heal)
+        self.display_damage(temp_heal, color=gold, size=25)
 
     def add_mana(self, mana, enemy:object=None, mana_mult=1): # add mana
         if enemy is not None: #called by take damage, adds mana to attacker if enemy is not None
@@ -2626,6 +2630,63 @@ class Player(pygame.sprite.Sprite):
                 self.y_velocity = jump_force * (1 + jump_force_modifier)
                 self.last_atk_time = current_time  # Update the last jump time
     
+    def item_activation(self):
+    
+        current_time_ticks = pygame.time.get_ticks() - global_vars.PAUSED_TOTAL_DURATION
+        # Check for heal_when_low items
+        current_time = pygame.time.get_ticks() / 1000 - global_vars.PAUSED_TOTAL_DURATION / 1000 # CHECKS SECONDS (NOT GAME TICKS)
+        for item in self.items:
+            
+            if 'heal_when_low' in item.bonus_type:
+                heal_mult = item.info['heal_when_low']
+                if self.health <= self.max_health * 0.1 and current_time - item.last_used >= item.cooldown:
+                    heal_amount = self.strength * heal_mult
+                    self.take_heal(heal_amount)
+                    item.last_used = current_time
+
+                    if item.attack_frames:
+                        from heroes import Attack_Display
+                        attack_display.add(Attack_Display(
+                            x=self.rect.centerx, y=self.rect.centery,
+                            frames=item.attack_frames,
+                            frame_duration=item.attack_frame_duration,
+                            repeat_animation=item.attack_repeat,
+                            dmg=0, final_dmg=0,
+                            who_attacks=self, who_attacked=self.enemy,
+                            speed=0, moving=False, heal=False,
+                            continuous_dmg=False, per_end_dmg=(False, False),
+                            disable_collide=True, stun=(False, 0),
+                            sound=(False, None, None, None), kill_collide=False,
+                            follow=(False, True), follow_self=True, follow_offset=(0,50)
+                        ))
+
+            if 'temp_hp_increase' in item.bonus_type:
+                if current_time - item.last_used >= item.cooldown:
+                    temp_hp_amount = item.info['temp_hp_increase']
+                    self.take_temp_hp(temp_hp_amount)
+                    item.last_used = current_time
+                    
+                    if item.attack_frames:
+                        from heroes import Attack_Display
+                        attack_display.add(Attack_Display(
+                            x=self.rect.centerx, y=self.rect.centery,
+                            frames=item.attack_frames,
+                            frame_duration=item.attack_frame_duration,
+                            repeat_animation=item.attack_repeat,
+                            dmg=0, final_dmg=0,
+                            who_attacks=self, who_attacked=self.enemy,
+                            speed=0, moving=False, heal=False,
+                            continuous_dmg=False, per_end_dmg=(False, False),
+                            disable_collide=True, stun=(False, 0),
+                            sound=(False, None, None, None), kill_collide=False,
+                            follow=(False, True), follow_self=True, follow_offset=(0,30)
+                        ))
+
+        if self.immortality_activated and current_time_ticks >= self.immortality_duration:
+            self.immortality_activated = False
+
+        # print(current_time_ticks, self.immortality_duration, self.immortality_activated)
+
     # Phased out code (since I don't use super.init)
     def update(self):
         """Base player update: handles universal effects."""
@@ -2635,47 +2696,9 @@ class Player(pygame.sprite.Sprite):
             self.draw_mana_bar(screen) if global_vars.SHOW_MINI_MANA_BAR else None
             self.draw_special_bar(screen) if global_vars.SHOW_MINI_SPECIAL_BAR else None
 
-            current_time_ticks = pygame.time.get_ticks() - global_vars.PAUSED_TOTAL_DURATION
-            # Check for heal_when_low items
-            current_time = pygame.time.get_ticks() / 1000 - global_vars.PAUSED_TOTAL_DURATION / 1000 # CHECKS SECONDS (NOT GAME TICKS)
-            for item in self.items:
-                # -----------------------------------------------------------------------------------------------------
-                if 'heal_when_low' in item.bonus_type:
-                    heal_mult = item.info['heal_when_low']
-                    if self.health <= self.max_health * 0.1 and current_time - item.last_used >= item.cooldown:
-                        heal_amount = self.strength * heal_mult
-                        self.take_heal(heal_amount)
-                        item.last_used = current_time
-
-                        if item.attack_frames:
-                            from heroes import Attack_Display
-                            attack_display.add(Attack_Display(
-                                x=self.rect.centerx, y=self.rect.centery,
-                                frames=item.attack_frames,
-                                frame_duration=item.attack_frame_duration,
-                                repeat_animation=item.attack_repeat,
-                                dmg=0, final_dmg=0,
-                                who_attacks=self, who_attacked=self.enemy,
-                                speed=0, moving=False, heal=False,
-                                continuous_dmg=False, per_end_dmg=(False, False),
-                                disable_collide=True, stun=(False, 0),
-                                sound=(False, None, None, None), kill_collide=False,
-                                follow=(False, True), follow_self=True, follow_offset=(0,50)
-                            ))
-            
-
-            if self.immortality_activated and current_time_ticks >= self.immortality_duration:
-                self.immortality_activated = False
-
-            # print(current_time_ticks, self.immortality_duration, self.immortality_activated)
-
-
-
-
-
-                # -----------------------------------------------------------------------------------------------------
-                # elif True:
-                #     pass
+            # -----------------------------------------------------------------------------------------------------
+            self.item_activation()
+            # -----------------------------------------------------------------------------------------------------
 
             # Draws hero skills in game
             if global_vars.SINGLE_MODE_ACTIVE and self.player_type == 2 and not global_vars.show_bot_skills:

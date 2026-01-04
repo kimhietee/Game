@@ -2,7 +2,7 @@ import pygame
 
 import json
 import os
-
+import global_vars as g
    
 
 
@@ -120,8 +120,8 @@ status = [
     pygame.K_DELETE,
 ]
 
-
-filename = "keybinds.json"
+os.makedirs("key_settings", exist_ok=True)
+filename = f"key_settings/keybinds_{g.user_id}.json"
 
     
 
@@ -146,7 +146,7 @@ def write_settings():
     else:
         with open(filename, "w") as f:
             json.dump(data, f, indent = 4)
-            f.close()
+
 
 
 

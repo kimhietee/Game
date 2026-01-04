@@ -1373,10 +1373,11 @@ def login():
                     usernamereg_clicked = False
 
                 if reg_register.is_clicked(event.pos) and register_modal.selected:
+                    
                     if len(usernamereg_input) >= username_limit_char[0] and len(usernamereg_input) <= username_limit_char[1]:
                             if len(passwordreg_input) >= password_limit_char[0] and len(passwordreg_input) <= password_limit_char[1]:
                                 Save.register(usernamereg_input, Save.hash_pw(passwordreg_input))
-                                Save.show_all_user()
+                                
                                 print("Registered Successfully")
                                 register_modal.set_position((int(width * 0.5),int(height * 1.5)), False, True)
                                 register_modal.selected = False
@@ -1410,6 +1411,7 @@ def login():
 
                 if register_button.is_clicked(event.pos) and not register_modal.selected:
                     print("register")
+                    Save.show_all_user()
                     register_modal.set_position((int(width * 0.5),int(height * 0.55)), False, True)
                     
                     usernamereg_clicked = False

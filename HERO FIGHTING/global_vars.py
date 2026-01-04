@@ -4,8 +4,8 @@ import pygame
 width = 1280
 height = 720
 # 1280 x 800 PERFECT FULL SCREEN (pls modify your display resolution :)
-width = 1920
-height = 1080
+# width = 1920
+# height = 1080
 icon = pygame.image.load(r'assets\icons\miku.png')      
 FPS = 60
 clock = pygame.time.Clock()

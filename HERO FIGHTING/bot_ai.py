@@ -1399,7 +1399,7 @@ def create_bot(selected_hero, player_type, enemy):
                         },
                         'skill_4': {
                             'cast_range': 1070,
-                            'min_cast_range': 200,
+                            'min_cast_range': 100,
                             'require_all': False,
                             'conditions': [
                                 # Casual skill, casts if enemy is using skill (can't be avoided)
@@ -1411,12 +1411,11 @@ def create_bot(selected_hero, player_type, enemy):
                                     ) 
                                 ),
                                 lambda bot: (not bot.special_active and
-                                    bot.bot_hp_percent() < 20
+                                    bot.bot_hp_percent() < 50
                                 ),
                                 #sp logic
                                 # Enemy is gone
-                                lambda bot: (bot.special_active and
-                                    bot.enemy_distance >= 100
+                                lambda bot: (bot.special_active
                                 ),
                             ]
                         }

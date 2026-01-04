@@ -168,7 +168,12 @@ class Fire_Wizard(Player):
         # Skill 2: reverted back to original version with rework
 
         #update
+        # water princess:
+        # Skill 1: mana cost 100 -> 40, cooldown 15s -> 5, damage/heal 5/20 -> 5/10
+        # reverted back to original
+        # Skill 1: mana cost 100 -> 80, cooldown 15s -> 10s, damage/heal 5/20 -> 10/20
         
+
     def __init__(self, player_type, enemy):
         super().__init__(player_type, enemy)
         self.player_type = player_type # 1 for player 1, 2 for player 2

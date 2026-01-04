@@ -120,19 +120,19 @@ class Water_Princess(Player):
 
 
 
-        self.atk1_mana_cost = 100
+        self.atk1_mana_cost = 80
         self.atk2_mana_cost = 160
         self.atk3_mana_cost = 200
         self.sp_mana_cost = 240
 
         #go to attacks section to calculate mana
 
-        self.atk1_cooldown = 15000
+        self.atk1_cooldown = 10000
         self.atk2_cooldown = 26000
         self.atk3_cooldown = 40000
         self.sp_cooldown = 65000
 
-        self.atk1_damage = (5/40, 0)
+        self.atk1_damage = (10/40, 0)
         self.atk1_damage_2nd = 20 #-----
         self.atk2_damage = (12.5/40, 0) # total dmg 40 #rain
         self.atk2_damage_2nd = (3/40, 5) #circling

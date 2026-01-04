@@ -1518,9 +1518,19 @@ Chthulu = chthulu.Chthulu
 
 
 
+# {
+#       "name": "Enrichment Booster",
+#       "image_path": "assets/item icons/new items/2 Icons with back/Icons_42.png",
+#       "bonus_type": ["all_stats_flat", "hp_regen_per", "mana_regen_per", "mana_refund_per", "lifesteal_per", "dmg_reduce_per", "dmg_return_per", "move_speed_per", "spell_dmg_per", "cd_reduce_per", "mana_reduce_per"],
+#       "bonus_value": [2, 0.02, 0.02, 0.2, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02]
+#     },
 
-
-
+# {
+#       "name": "Enrichment Booster",
+#       "image_path": "assets/item icons/new items/2 Icons with back/Icons_42.png",
+#       "bonus_type": ["lifesteal_per", "mana_refund_per", "hp_regen_per", "mana_regen_per"],
+#       "bonus_value": [0.06, 0.3, 0.05, 0.05]
+#     },
 
 
 
@@ -1566,6 +1576,8 @@ class Item:
                 attack_count = (5, 10)
             elif attack_count == "temp_hp_count":
                 attack_count = (5, 9)
+            elif attack_count == "spawn_flame_count":
+                attack_count = (8, 8)
             self.attack_frames = self.load_img_frames_v2(attack_frames, attack_count, starts_at_zero, size, frame_type)
         self.attack_frame_duration = attack_frame_duration
         self.attack_repeat = attack_repeat
@@ -1653,7 +1665,7 @@ class Item:
             # Attack / Damage / Speed
             "atk_per": "Attack Damage",
             "atk_flat": "Attack Damage",
-            "atk_speed_flat": "Attack Speed",   # Flat (ticks)
+            "atk_speed_flat": "Attack Speed",   # Flat
             "atk_speed_per": "Attack Speed",    # Percentage
             "spell_dmg_per": "Spell Damage",
             "crit_chance_per": "Critical Chance",
@@ -1715,7 +1727,7 @@ class Item:
                 text = font.render("ready", True, green)
                 screen.blit(text, (center_pos[0] - text.get_width()//2, center_pos[1] - 30))
 
-    def update(self, position, line_break_every=5, use_literal=False, character_limit=1000):
+    def update(self, position, line_break_every=100, use_literal=False, character_limit=1000):
         '''line_break_every = simply dont put arrow at the bonus.'''
         if use_literal:
             # Option 1: Literal values (no %)
@@ -2982,13 +2994,13 @@ def player_selection():
                     # ------------------------------
                     # --- Create bots for both teams ---
                     hero1_group.add(
-                        *(create_bot(PLAYER_1_SELECTED_HERO if not global_vars.random_pick_p1 else random.choice(heroes), PLAYER_1, hero2)(hero2, hero2) for _ in range(4))
+                        *(create_bot(PLAYER_1_SELECTED_HERO if not global_vars.random_pick_p1 else random.choice(heroes), PLAYER_1, hero2)(hero2, hero2) for _ in range(2))
                     )
 
                     
 
                     hero2_group.add(
-                        *(create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, hero1)(hero1, hero1) for _ in range(4))
+                        *(create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, hero1)(hero1, hero1) for _ in range(2))
                     )
 
                     hero1_group.add(hero1)

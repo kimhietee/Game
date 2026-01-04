@@ -384,7 +384,7 @@ class ModalObject:
         self.button_bottom_gap = size[1] * button_bottom_gap
         self.hovered = False
         self.selected = False
-   
+        self.disable_action = False
 
         self.original_pos = center_pos
         self.target_pos = center_pos
@@ -466,7 +466,7 @@ class ModalObject:
             # If very close, snap exactly to avoid drift
             if abs(dx) <= 2 and abs(dy) <= 2:
                 print("Snapped")
-
+                self.disable_action = self.selected
                 self._apply_position(self.target_pos)
                 if self.shake_count:
                     self.shake_count -= 1

@@ -2017,15 +2017,15 @@ class PlayerSelector:
     Clickable selector for heroes, items, or maps with smooth movement on select.
     """
     # Default sizes
-    PROFILE_SIZE = (75, 75)        # Heroes
-    INGAME_SIZE = (50, 50)         # Items (your old size)
-    DECOR_SIZE_LARGE = (85, 85)
-    DECOR_OFFSET_LARGE = (42, 42)
-    DECOR_SIZE_SMALL = (60, 60)
-    DECOR_OFFSET_SMALL = (30, 30)
-    DECOR_SIZE_SMALLEST = (30, 30)
+    PROFILE_SIZE = (width * 0.05859375, width * 0.05859375)        # Heroes 75, 75
+    INGAME_SIZE = (width * 0.0390625, width * 0.0390625)         # Items (your old size)
+    DECOR_SIZE_LARGE = (width * 0.06640625, width * 0.06640625)    
+    DECOR_OFFSET_LARGE = (width * 0.0328125, width * 0.0328125)
+    DECOR_SIZE_SMALL = (width * 0.046875, width * 0.046875)
+    DECOR_OFFSET_SMALL = (width * 0.0234375, width * 0.0234375) # 30, 30
+    DECOR_SIZE_SMALLEST = (width * 0.0234375, width * 0.0234375)  # 30, 30
 
-    DESELECT_Y_OFFSET = -45
+    DESELECT_Y_OFFSET = - (height * 0.0625)
 
     def __init__(self, image, center_pos, class_item, small=False, custom_size=None, custom_border=(15,15)):
         """
@@ -2067,6 +2067,7 @@ class PlayerSelector:
             self.profile_rect.centery - decor_offset[1],
             *decor_size
         )
+
         self.can_move_back = False
         self.can_move = True
         self.hovered = False
@@ -2476,22 +2477,25 @@ def player_selection():
 
     #upper position PlayerSelector(wind_hashashin_icon, (75, height - 75 * 3), Wind_Hashashin)
     #p1
-    addd=10
-    yposlower=75
-    yposupper=200
-    xpos1=width - int(75 * 7)+addd # 535
-    xpos2=width - int(75 * 5.5)+addd # 422
-    xpos3=width - int(75 * 4)+addd #310
-    xpos4=width - int(75 * 2.5)+addd #197
-    xpos5=width - int(75)+addd #85
+    addd=width * 0.0079#10 
+    # yposlower=75
+    # yposupper=200
+
+    yposlower=(height * 0.10417 ) #75
+    yposupper=(height * 0.2778) #200
+
+    xpos1=width - int(yposlower * 7)+addd # 535
+    xpos2=width - int(yposlower * 5.5)+addd # 422
+    xpos3=width - int(yposlower * 4)+addd #310
+    xpos4=width - int(yposlower * 2.5)+addd #197
+    xpos5=width - int(yposlower)+addd #85
 
     #difference 112.5
     # last is only 75 position for xpos4
 
     #p2
     temp_icon = r'assets\hero profiles\temp.jpg'
-    yposlower=75
-    yposupper=200
+    
     # Heroes (large icons — default size)
 
     p1_select = []
@@ -2523,8 +2527,8 @@ def player_selection():
     
 
     # positioning
-    upper=550
-    item_gap_x = 75
+    upper=height * 0.76
+    item_gap_x = width * 0.05859375 
     item_gap_y = 100
 
     item_spacing_w = 7
@@ -2615,13 +2619,13 @@ def player_selection():
 
     # Maps (custom large size)
     map_select = [
-        PlayerSelector(waterfall_icon, (75*2, height - (75*6)), Animate_BG.waterfall_bg, custom_size=(200, 125)),
+        PlayerSelector(waterfall_icon, (width*0.1172, height - (75*6)), Animate_BG.waterfall_bg, custom_size=(200, 125)),
         PlayerSelector(lava_icon, (width/2 - (55 * 3), height - (75*6)), Animate_BG.lava_bg, custom_size=(200, 125)),
         PlayerSelector(dark_forest_icon, (width/2 + (55 * 3), height - (75*6)), Animate_BG.dark_forest_bg, custom_size=(200, 125)),
-        PlayerSelector(trees_icon, (width - (75 * 2), height - (75*6)), Animate_BG.trees_bg, custom_size=(200, 125)),
-        PlayerSelector(global_vars.mountains_icon, (75*2, height - (75*3)), Animate_BG.mountains_bg, custom_size=(200, 125)),
-        PlayerSelector(global_vars.sunset_icon, (width/2 - (55 * 3), height - (75*3)), Animate_BG.sunset_bg, custom_size=(200, 125)),
-        PlayerSelector(global_vars.city_icon, (width/2 + (55 * 3), height - (75*3)), Animate_BG.city_bg, custom_size=(200, 125)),
+        PlayerSelector(trees_icon, (width * 0.8828, height - (75*6)), Animate_BG.trees_bg, custom_size=(200, 125)),
+        PlayerSelector(global_vars.mountains_icon, (width*0.1172, height - (75*3)), Animate_BG.mountains_bg, custom_size=(200, 125)),
+        PlayerSelector(global_vars.sunset_icon, (width/2 - (width*0.1289), height - (75*3)), Animate_BG.sunset_bg, custom_size=(200, 125)),
+        PlayerSelector(global_vars.city_icon, (width/2 + (width*0.1289), height - (75*3)), Animate_BG.city_bg, custom_size=(200, 125)),
     ]
 
 
@@ -2744,7 +2748,7 @@ def player_selection():
                 if selector.is_selected(): # when hero selection
                     PLAYER_1_SELECTED_HERO = selector.get_associated()
                     if selector.selected:
-                        selector.set_position((75, height-50))
+                        selector.set_position((75, height- (height * 0.07)))
 
                     # Draw item selection
                     for item in p1_items:
@@ -2753,7 +2757,7 @@ def player_selection():
                             if item in equipped_items.item:
                                 continue
                             indexed = len(equipped_items.item)
-                            item.set_position((item_equip_hashmap[indexed], height-100))
+                            item.set_position((item_equip_hashmap[indexed], height-(height * 0.139)))
                             equipped_items.add(item)
                             
                         equipped_items.update()
@@ -2977,6 +2981,8 @@ def player_selection():
                                     hero3.items.append(item.get_associated())
 
 
+
+
                     if global_vars.SINGLE_MODE_ACTIVE:
                         if global_vars.toggle_hero3:
                             hero3.apply_item_bonuses()
@@ -2994,13 +3000,13 @@ def player_selection():
                     # ------------------------------
                     # --- Create bots for both teams ---
                     hero1_group.add(
-                        *(create_bot(PLAYER_1_SELECTED_HERO if not global_vars.random_pick_p1 else random.choice(heroes), PLAYER_1, hero2)(hero2, hero2) for _ in range(2))
+                        *(create_bot(PLAYER_1_SELECTED_HERO if not global_vars.random_pick_p1 else random.choice(heroes), PLAYER_1, hero2)(hero2, hero2) for _ in range(0))
                     )
 
                     
 
                     hero2_group.add(
-                        *(create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, hero1)(hero1, hero1) for _ in range(2))
+                        *(create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, hero1)(hero1, hero1) for _ in range(0))
                     )
 
                     hero1_group.add(hero1)

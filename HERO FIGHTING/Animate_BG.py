@@ -234,7 +234,7 @@ green_bg = AnimatedBackground(
     size="full"
 )
 
-sword_campaign = AnimatedBackground(
+sword_login = AnimatedBackground(
     r"assets\backgrounds\animated_bg\blue_bg\\",
     250,
     size="full"

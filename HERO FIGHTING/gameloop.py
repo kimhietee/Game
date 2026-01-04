@@ -153,6 +153,8 @@ menu_button = ImageButton(
     text_anti_alias=global_vars.TEXT_ANTI_ALIASING
 )
 
+
+
 login_button = ImageButton(
     image_path=text_box_img,
     pos=(width * 0.6, height * 0.85),
@@ -264,6 +266,16 @@ control_button = ImageButton(
     text='Controls',
     font_path=r'assets\font\slkscr.ttf',  # or any other font path
     font_size=font_size*0.8,  # dynamic size ~29 at 720p
+    text_color='white',
+    text_anti_alias=global_vars.TEXT_ANTI_ALIASING
+)
+Login_option = ImageButton(
+    image_path=text_box_img,
+    pos=(100, height * 0.85),
+    scale=scale * 0.8,
+    text='LOGIN',
+    font_path=r'assets\font\slkscr.ttf',  # or any other font path
+    font_size=font_size,  # dynamic size ~29 at 720p
     text_color='white',
     text_anti_alias=global_vars.TEXT_ANTI_ALIASING
 )
@@ -720,7 +732,7 @@ def game(bg=None):
         # print(FREEZE_SPECIAL)
                 
 # -------------------------------------------------------------------------------------
-
+        
         
         if not paused:
             # Background
@@ -729,7 +741,7 @@ def game(bg=None):
             # Animate_BG.dark_forest_bg.display(screen)
             
             run_background(main.map_selected)
-
+            draw_black_screen(0.4,size=(0, 0, width, height*0.165))
             # main.screen.blit(background, (0, -(720*1.05 - 720)))
 
             draw_grid(screen) if global_vars.SHOW_GRID else None
@@ -855,7 +867,7 @@ def game(bg=None):
         else:
             pause(mouse_pos, mouse_press)
 
-
+        
         
 
         
@@ -1143,7 +1155,13 @@ def menu():
                     # fade(Animate_BG.Sword_campaign.frames[0], campaign, 300, True)
                     fade(Animate_BG.waterfall_day_bg.frames[0], campaign, 300, True)
                     # campaign()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if Login_option.is_clicked(event.pos):
+                    # fade(Animate_BG.Sword_campaign.frames[0], campaign, 300, True)
+                    fade(Animate_BG.waterfall_day_bg.frames[0], login, 300, True)
+                    # campaign()
                     
+
 
             if keys[pygame.K_SPACE]:
                 main.player_selection()
@@ -1168,7 +1186,7 @@ def menu():
         control_button.draw(main.screen,mouse_pos)
 
         settings_button.draw(main.screen,mouse_pos)
-
+        Login_option.draw(main.screen, mouse_pos)
         
 
 
@@ -1183,14 +1201,16 @@ def menu():
         pygame.display.update()
         main.clock.tick(main.FPS)
 
-
-
-
-load_sword_campaign_bg = False
 def campaign():
+    pass
+
+
+load_sword_login_bg = False
+
+def login():
 
     #variables
-    global load_sword_campaign_bg
+    global load_sword_login_bg
     username_input = ""
     password_input = ""
     usernamereg_input = ""
@@ -1304,10 +1324,10 @@ def campaign():
         # key_press = pygame.key.get_pressed()
         
 
-        if not load_sword_campaign_bg:
-            Animate_BG.sword_campaign.load_frames_type2()
-            load_sword_campaign_bg = True
-        Animate_BG.sword_campaign.display(screen, speed=10)
+        if not load_sword_login_bg:
+            Animate_BG.sword_login.load_frames_type2()
+            load_sword_login_bg = True
+        Animate_BG.sword_login.display(screen, speed=10)
         
 
         #typing indicator
@@ -1353,10 +1373,11 @@ def campaign():
                     usernamereg_clicked = False
 
                 if reg_register.is_clicked(event.pos) and register_modal.selected:
+                    
                     if len(usernamereg_input) >= username_limit_char[0] and len(usernamereg_input) <= username_limit_char[1]:
                             if len(passwordreg_input) >= password_limit_char[0] and len(passwordreg_input) <= password_limit_char[1]:
                                 Save.register(usernamereg_input, Save.hash_pw(passwordreg_input))
-                                Save.show_all_user()
+                                
                                 print("Registered Successfully")
                                 register_modal.set_position((int(width * 0.5),int(height * 1.5)), False, True)
                                 register_modal.selected = False
@@ -1390,6 +1411,7 @@ def campaign():
 
                 if register_button.is_clicked(event.pos) and not register_modal.selected:
                     print("register")
+                    Save.show_all_user()
                     register_modal.set_position((int(width * 0.5),int(height * 0.55)), False, True)
                     
                     usernamereg_clicked = False
@@ -1494,6 +1516,8 @@ def campaign():
         register_button.draw(screen, mouse_pos)
         
         menu_button.draw(screen, mouse_pos)
+        
+
 
         draw_black_screen(register_opacity)
 
@@ -1711,7 +1735,7 @@ def controls(can_click = can_click, opacity=opacity, display_confirmation = disp
     
     
     while True:
-       
+        # print(keyswap_modal.disable_action)
 
         draw_black_screen(opacity)
         keys = pygame.key.get_pressed()
@@ -1914,7 +1938,7 @@ def controls(can_click = can_click, opacity=opacity, display_confirmation = disp
             if any(detect):
                 key_store = [x[1].upper() for x in new_key]
                 for key_index in (key.status):
-                    if keys[key_index] == True:
+                    if keys[key_index] == True and can_click:
                         # print([x[1].upper() for x in new_key])
                         key_name = pygame.key.name(key_index).upper()
                         # if key_name == "UP":

@@ -13,7 +13,7 @@ clock = pygame.time.Clock()
 # screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 
 screen = pygame.display.set_mode((width, height), pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SCALED, vsync=1)
-# screen = pygame.display.set_mode((width, height), pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SCALED | pygame.FULLSCREEN, vsync=1)
+# screen = pygame.display.set_mode((width, height), pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SCALED | pygame.FULLSCREEN, vsync=1) # FULLSCREEN !!!
 
 # display_size = pygame.display.get_desktop_sizes()
 # width,height = display_size[0][0]-50, display_size[0][1]-50
@@ -47,8 +47,8 @@ TEXT_ANTI_ALIASING = False
 SMOOTH_BG = False
 MAX_ITEM = 4
 # MAX DEFAULT ITEM = 4
-
-item_equip_hashmap = [(x*100)-21 for x in range(2,MAX_ITEM+2)]
+x_gap = width * 0.078125
+item_equip_hashmap = [(x*x_gap)-21 for x in range(2,MAX_ITEM+2)]
 
 
 hitboxanddistance = False
@@ -205,6 +205,23 @@ dmg_mult = 0.05
 
 hero1 = None
 hero2 = None
+
+
+
+
+
+#USER VARIABLE
+username = None
+user_id = None
+user_bio = None
+
+
+
+
+
+
+
+
 
 #loading screen
 loading_screen_bg = pygame.transform.scale(

@@ -32,8 +32,11 @@ def saveFile(filePath, data):
 
 
 
+os.makedirs("database/user_data", exist_ok=True)
+os.makedirs("database/user_info", exist_ok=True)
 
-conn = sqlite3.connect("user.db")  # creates file if not exists
+
+conn = sqlite3.connect("database/user_data/user.db")  # creates file if not exists
 cursor = conn.cursor()
 
 cursor.execute("""
@@ -46,6 +49,32 @@ CREATE TABLE IF NOT EXISTS users (
 conn.commit()
 
 
+conn2 = sqlite3.connect("database/user_info/user_info_store.db")
+
+cursor2 = conn2.cursor()
+
+cursor2.execute("""
+CREATE TABLE IF NOT EXISTS user_info (
+    id INTEGER PRIMARY KEY,                   -- primary key is good practice
+    volume REAL DEFAULT 1.0,                  -- default volume 1.0
+    hero_health_bar INTEGER DEFAULT 100,      -- default full health
+    hero_mana_bar INTEGER DEFAULT 0,          -- default full mana
+    hero_special_bar INTEGER DEFAULT 0,       -- default no special
+    text_anti_aliasing INTEGER DEFAULT 0,     -- boolean 1 = True
+    smooth_background INTEGER DEFAULT 0,      -- boolean 1 = True
+    show_distance INTEGER DEFAULT 0,          -- boolean 0 = False
+    show_hitbox INTEGER DEFAULT 0,            -- new boolean column
+    show_ground INTEGER DEFAULT 0             -- new boolean column
+)
+""")
+conn2.commit()
+
+
+
+
+
+
+
 def login_check(username):
     cursor.execute(
     "SELECT * FROM users WHERE username = ?",
@@ -54,6 +83,8 @@ def login_check(username):
 
     user = cursor.fetchone()
     print(user)
+    
+    
     return user
 
 
@@ -65,12 +96,24 @@ def register(username, password):
         )
         conn.commit()
         print("User registered successfully")
+
+        user_id = cursor.lastrowid
+        cursor2.execute(
+            "INSERT INTO user_info (id) VALUES (?)",
+            (user_id,)
+
+        )
+
+        
     except sqlite3.IntegrityError:
         print("Username already exists")
 
 def show_all_user():
     cursor.execute("SELECT * FROM users")
     print(cursor.fetchall())
+    
+    cursor2.execute("SELECT * FROM user_info")
+    print(cursor2.fetchall())
     
 
 def hash_pw(pw):

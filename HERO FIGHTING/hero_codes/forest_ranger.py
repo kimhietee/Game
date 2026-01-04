@@ -618,16 +618,11 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
                         self.player_atk1_index = 0
                         self.player_atk1_index_flipped = 0
 
-                        # Ensure haste buffs do not stack by resetting to default attack speed before applying a new haste buff
-                        if self.atk_hasted:
-                            # Reset to default attack speed before applying a new haste buff
-                            self.basic_attack_animation_speed = self.default_atk_speed
-
-                        # Activate attack speed haste
-                        self.atk_hasted = True
-                        self.haste_value = 300  # Attack speed bonus
-                        self.atk_haste_duration = (pygame.time.get_ticks() + 611.11) + 5000
-                        self.default_atk_speed = self.basic_attack_animation_speed  # Store the current attack speed as default
+                        if not self.atk_hasted:
+                            self.atk_hasted = True
+                            self.haste_value = 300  # Attack speed bonus
+                            self.atk_haste_duration = (pygame.time.get_ticks() + 611.11) + 5000
+                            self.default_atk_speed = self.basic_attack_animation_speed  # Store the current attack speed as default
                         
  
                         # print("Attack executed")
@@ -972,16 +967,11 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
                         self.player_atk1_index = 0
                         self.player_atk1_index_flipped = 0
 
-                        # Ensure haste buffs do not stack by resetting to default attack speed before applying a new haste buff
-                        if self.atk_hasted:
-                            # Reset to default attack speed before applying a new haste buff
-                            self.basic_attack_animation_speed = self.default_atk_speed
-
-                        # Activate attack speed haste
-                        self.atk_hasted = True
-                        self.haste_value = 350  # Attack speed bonus
-                        self.atk_haste_duration = (pygame.time.get_ticks() + 611.11) + 5000
-                        self.default_atk_speed = self.basic_attack_animation_speed  # Store the current attack speed as default
+                        if not self.atk_hasted:
+                            self.atk_hasted = True
+                            self.haste_value = 350  # Attack speed bonus
+                            self.atk_haste_duration = (pygame.time.get_ticks() + 611.11) + 5000
+                            self.default_atk_speed = self.basic_attack_animation_speed  # Store the current attack speed as default
 
                         # print("Attack executed")
                     else:

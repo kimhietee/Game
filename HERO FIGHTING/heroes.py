@@ -2480,7 +2480,7 @@ def auto_align():
             i.set_position(i.original_pos, True)
 
 
-item_spacing_w = 6
+item_spacing_w = 7
 item_max_y = 4
 def paginating( move:bool, max_height = item_max_y):
         auto_align()
@@ -2753,6 +2753,7 @@ def player_selection():
             return r[0] +  (' ' + r[1]) +  (' ' + r[2])
         else:
             return r[0]
+    paginating(False)
     while True:
         if immediate_run: # DEV OPTION ONLY
             PLAYER_1_SELECTED_HERO = Wanderer_Magician
@@ -2851,6 +2852,7 @@ def player_selection():
                     # selector.the_info((width + (width * 0.322), height - 525)) #previous position
                 if selector.is_selected(): # when hero selection
                     PLAYER_1_SELECTED_HERO = selector.get_associated()
+                    create_title(f"{item_page}", font, 0.5, height * 0.78, modify_xpos=width*0.24)
                     next_page_button.update(mouse_pos, (True if next_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
                     next_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
 
@@ -2932,6 +2934,7 @@ def player_selection():
                 if selector.hovered:
                     selector.show_hover_tooltip(mouse_pos)
                 if selector.is_selected():
+                    
                     PLAYER_2_SELECTED_HERO = selector.get_associated()
                     next_page_button.update(mouse_pos, (True if next_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
                     next_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)

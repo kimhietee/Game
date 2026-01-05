@@ -2468,26 +2468,26 @@ slot = ImageButton(
 # print('opening player selection')
 # print(global_vars.SMOOTH_BG)
 
-def auto_align():
+def auto_align(instant=True):
     for i in p1_items:
         i.original_pos = i.static_pos_1
         if not i.selected:
-            i.set_position(i.original_pos, True)
+            i.set_position(i.original_pos, instant)
 
     for i in p2_items:
         i.original_pos = i.static_pos_1
         if not i.selected:
-            i.set_position(i.original_pos, True)
+            i.set_position(i.original_pos, instant)
 
 
 item_spacing_w = 7
 item_max_y = 4
-def paginating( move:bool, max_height = item_max_y):
-        auto_align()
+def paginating( move:bool, instant:bool = False, max_height = item_max_y):
+        auto_align(instant)
         global item_page
         print(f"Current Page = {item_page}")
         baseline = item_spacing_w * max_height
-        total_page = (len(p1_items)//(baseline)) + 1
+        total_page = ((len(p1_items)-1)//(baseline)) + 1
         print(f"Baseline = {baseline}")
         print(f" p1 items = {len(p1_items)}")
         print(f" total page {total_page}")
@@ -2753,7 +2753,8 @@ def player_selection():
             return r[0] +  (' ' + r[1]) +  (' ' + r[2])
         else:
             return r[0]
-    paginating(False)
+    paginating(False, True)
+    
     while True:
         if immediate_run: # DEV OPTION ONLY
             PLAYER_1_SELECTED_HERO = Wanderer_Magician

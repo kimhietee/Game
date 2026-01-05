@@ -36,7 +36,7 @@ IMMEDIATE_RUN = False
 
 HERO1_BOT = False
 all_items = False #equip bot with all items
-item_page
+item_page = 1
 
 
 toggle_hero3 = False

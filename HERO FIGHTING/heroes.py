@@ -2027,7 +2027,7 @@ class PlayerSelector:
 
     DESELECT_Y_OFFSET = - (height * 0.0625)
 
-    def __init__(self, image, center_pos, class_item, small=False, custom_size=None, custom_border=(15,15), static_pos:tuple=None):
+    def __init__(self, image, center_pos, class_item, small=False, custom_size=None, custom_border=(15,15), static_pos:tuple=(1,1)):
         """
         Args:
             image: str path or Surface
@@ -2077,12 +2077,11 @@ class PlayerSelector:
 
         self.original_pos = center_pos
         self.target_pos = center_pos
+
         self.static_pos_2 = center_pos
 
-        if static_pos != None:
-            self.static_pos_1 = static_pos   
-        else: 
-            self.static_pos_1 = center_pos
+        
+        self.static_pos_1 = static_pos
 
 
         self.move_speed = 0.1
@@ -2469,30 +2468,54 @@ slot = ImageButton(
 # print('opening player selection')
 # print(global_vars.SMOOTH_BG)
 
-item_spacing_w = 7
-def paginating(max_width:int, move:bool):
+def auto_align():
+    for i in p1_items:
+        i.original_pos = i.static_pos_1
+        if not i.selected:
+            i.set_position(i.original_pos, True)
 
+    for i in p2_items:
+        i.original_pos = i.static_pos_1
+        if not i.selected:
+            i.set_position(i.original_pos, True)
+
+
+item_spacing_w = 6
+def paginating( move:bool, max_height = 4):
+        auto_align()
         global item_page
-
-        baseline = item_spacing_w * max_width
-        total_page = int(len(p1_items)/baseline-1) + 1
-
-        if item_page <= total_page or item_page >= total_page:
-            print("Nahh fam")
-        else:
-            if move:
+        print(f"Current Page = {item_page}")
+        baseline = item_spacing_w * max_height
+        total_page = (len(p1_items)//(baseline-1)) + 1
+        print(f"Baseline = {baseline}")
+        print(f" p1 items = {len(p1_items)}")
+        print(f" total page {total_page}")
+        
+        if move:
+            if item_page < total_page:
                 item_page += 1
-            elif not move:
+        elif not move:
+            if item_page > 1:
                 item_page -= 1
+        
+                # p1_items[i].target_pos = p1_items[i].static_pos_1
+            
         for i in range(baseline * (item_page-1), baseline * item_page):
             try:
-                p1_items[i].original_pos = p1_items[i].static_pos_1
-                if not p1_items[i].is_selected:
-                    p1_items[i].target_pos = p1_items[i].static_pos_1
-                    p1_items[i].set_position(p1_items[i].target_pos, True)
+                p1_items[i].original_pos = p1_items[i].static_pos_2
+                # p1_items[i].target_pos = p1_items[i].static_pos_1
+                if not p1_items[i].selected:
+                    # print("this item is not selected")
+                    # print(p1_items[i].static_pos_2)
+                    # print(p1_items[i].original_pos)
+                    p1_items[i].set_position(p1_items[i].original_pos)
+                else:
+                    print("selected item")
             except:
                 print("out of bound")
                 break
+
+
 
 
 # from global_vars import quick_run_hero1, quick_run_hero2
@@ -2583,7 +2606,13 @@ def player_selection():
     # Items (small icons — use small=True)
     p1_items = []
     for x,y in enumerate(items):
-        p1_items.append(PlayerSelector(y.image, position_alignnment_Y(item_spacing_w, x+1), y, small=True),)
+        p1_items.append(PlayerSelector(
+            y.image, 
+            position_alignnment_Y(item_spacing_w, x+1), 
+            y, 
+            small=True,
+            static_pos = (width - (width * 1.1),position_alignnment_Y(item_spacing_w, x+1)[1]))
+            )
 
     p2_items = []
     for x,y in enumerate(items):
@@ -2592,8 +2621,8 @@ def player_selection():
             position_alignnment_Y(item_spacing_w, x+1), 
             y, 
             small=True,
-            static_pos= (position_alignnment_Y(item_spacing_w, x+1)[0] - (width/2),position_alignnment_Y(item_spacing_w, x+1)[1])
-            ))
+            static_pos = (width - (width * 1.1),position_alignnment_Y(item_spacing_w, x+1)[1]))
+            )
     #     # PlayerSelector(items[0].image, (75, height - upper), items[0], small=True),
     #     PlayerSelector(items[0].image, position_alignnment_Y(item_spacing_w, 1), items[0], small=True),
     #     PlayerSelector(items[1].image, position_alignnment_Y(item_spacing_w, 2), items[1], small=True),
@@ -2764,9 +2793,10 @@ def player_selection():
             # if event.type == pygame.MOUSEBUTTONDOWN:
                 if next_page_button.is_clicked(event.pos):
                     print('next page')
+                    paginating(True)
                 if back_page_button.is_clicked(event.pos):
                     print('back page')
-
+                    paginating(False)
 
         # screen.blit(background, (0, 0))
         Animate_BG.waterfall_night_bg.display(screen, speed=50) if not global_vars.SMOOTH_BG else Animate_BG.smooth_waterfall_night_bg.display(screen, speed=50)

@@ -2481,12 +2481,13 @@ def auto_align():
 
 
 item_spacing_w = 6
-def paginating( move:bool, max_height = 4):
+item_max_y = 4
+def paginating( move:bool, max_height = item_max_y):
         auto_align()
         global item_page
         print(f"Current Page = {item_page}")
         baseline = item_spacing_w * max_height
-        total_page = (len(p1_items)//(baseline-1)) + 1
+        total_page = (len(p1_items)//(baseline)) + 1
         print(f"Baseline = {baseline}")
         print(f" p1 items = {len(p1_items)}")
         print(f" total page {total_page}")
@@ -2515,6 +2516,20 @@ def paginating( move:bool, max_height = 4):
                 print("out of bound")
                 break
 
+        for i in range(baseline * (item_page-1), baseline * item_page):
+            try:
+                p2_items[i].original_pos = p2_items[i].static_pos_2
+                # p1_items[i].target_pos = p1_items[i].static_pos_1
+                if not p2_items[i].selected:
+                    # print("this item is not selected")
+                    # print(p1_items[i].static_pos_2)
+                    # print(p1_items[i].original_pos)
+                    p2_items[i].set_position(p2_items[i].original_pos)
+                else:
+                    print("selected item")
+            except:
+                print("out of bound")
+                break
 
 
 
@@ -2589,7 +2604,7 @@ def player_selection():
     item_gap_y = 100
 
    
-    def position_alignnment_Y(max_width:int, indexed:int, max_height:int = 4, height_gap = upper, item_gap_x = item_gap_x, item_gap_y = item_gap_y):
+    def position_alignnment_Y(max_width:int, indexed:int, max_height:int = item_max_y, height_gap = upper, item_gap_x = item_gap_x, item_gap_y = item_gap_y):
         baseline = (max_height * max_width)
         indexed = indexed - 1
         indexed = indexed % baseline
@@ -2821,12 +2836,7 @@ def player_selection():
             random_p1.draw(screen, global_vars.TEXT_ANTI_ALIASING)
 
             # print(pygame.mouse.get_pressed())
-            next_page_button.update(mouse_pos, (True if next_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
-            next_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
-
-            back_page_button.update(mouse_pos, (True if back_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
-            back_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
-
+            
             # fire_wizard_select.update(mouse_pos, mouse_press)
             # wanderer_magician_select.update(mouse_pos, mouse_press)
 
@@ -2841,6 +2851,12 @@ def player_selection():
                     # selector.the_info((width + (width * 0.322), height - 525)) #previous position
                 if selector.is_selected(): # when hero selection
                     PLAYER_1_SELECTED_HERO = selector.get_associated()
+                    next_page_button.update(mouse_pos, (True if next_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
+                    next_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
+
+                    back_page_button.update(mouse_pos, (True if back_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
+                    back_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
+
                     if selector.selected:
                         selector.set_position((75, height- (height * 0.07)))
 
@@ -2917,6 +2933,12 @@ def player_selection():
                     selector.show_hover_tooltip(mouse_pos)
                 if selector.is_selected():
                     PLAYER_2_SELECTED_HERO = selector.get_associated()
+                    next_page_button.update(mouse_pos, (True if next_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
+                    next_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
+
+                    back_page_button.update(mouse_pos, (True if back_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
+                    back_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
+
                     if selector.selected:
                         selector.set_position((75, height-50))
 

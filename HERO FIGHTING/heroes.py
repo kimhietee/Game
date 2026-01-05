@@ -2935,7 +2935,7 @@ def player_selection():
                 if selector.hovered:
                     selector.show_hover_tooltip(mouse_pos)
                 if selector.is_selected():
-                    
+                    create_title(f"{item_page}", font, 0.5, height * 0.78, modify_xpos=width*0.24)
                     PLAYER_2_SELECTED_HERO = selector.get_associated()
                     next_page_button.update(mouse_pos, (True if next_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
                     next_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)

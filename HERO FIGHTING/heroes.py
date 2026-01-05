@@ -2469,6 +2469,32 @@ slot = ImageButton(
 # print('opening player selection')
 # print(global_vars.SMOOTH_BG)
 
+item_spacing_w = 7
+def paginating(max_width:int, move:bool):
+
+        global item_page
+
+        baseline = item_spacing_w * max_width
+        total_page = int(len(p1_items)/baseline-1) + 1
+
+        if item_page <= total_page or item_page >= total_page:
+            print("Nahh fam")
+        else:
+            if move:
+                item_page += 1
+            elif not move:
+                item_page -= 1
+        for i in range(baseline * (item_page-1), baseline * item_page):
+            try:
+                p1_items[i].original_pos = p1_items[i].static_pos_1
+                if not p1_items[i].is_selected:
+                    p1_items[i].target_pos = p1_items[i].static_pos_1
+                    p1_items[i].set_position(p1_items[i].target_pos, True)
+            except:
+                print("out of bound")
+                break
+
+
 # from global_vars import quick_run_hero1, quick_run_hero2
 def player_selection():
     global map_selected
@@ -2539,7 +2565,7 @@ def player_selection():
     item_gap_x = width * 0.05859375 
     item_gap_y = 100
 
-    item_spacing_w = 7
+   
     def position_alignnment_Y(max_width:int, indexed:int, max_height:int = 4, height_gap = upper, item_gap_x = item_gap_x, item_gap_y = item_gap_y):
         baseline = (max_height * max_width)
         indexed = indexed - 1
@@ -2550,20 +2576,7 @@ def player_selection():
         # print(f"{item_gap_x} - {new_indexed}, {height} - ({upper} - ({item_gap_y} * ({indexed}) // (1 + {max_width})))))")
         return ((item_gap_x * new_indexed),height - (height_gap - (item_gap_y * ((indexed) // (max_width)))))
 
-    def paginating(max_width:int, move:bool):
-
-        global item_page
-
-        baseline = item_spacing_w * max_width
-        total_page = int(len(p1_items)/baseline-1) + 1
-
-        if item_page <= total_page or item_page >= total_page:
-            print("Nahh fam")
-        else:
-            if move:
-                item_page += 1
-            elif not move:
-                item_page -= 1
+    
 
 
 

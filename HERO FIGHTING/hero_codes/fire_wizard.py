@@ -200,8 +200,8 @@ class Fire_Wizard(Player):
         
         # Recalculate attack speed variables for fire wizard's base stats
         self.attack_speed = self.calculate_effective_as()
-        self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-        self.basic_attack_animation_speed = global_vars.DEFAULT_ANIMATION_SPEED / (self.attack_speed / self.base_attack_speed)
+        self.base_animation_speed = 120
+        self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
 
         #2 attack per basic attack (5.6 DPS)
         # Base Stats
@@ -500,7 +500,6 @@ class Fire_Wizard(Player):
             if not self.jumping and not self.is_dead():
                 if hotkey1 and not self.attacking1 and not self.attacking2 and not self.attacking3 and not self.sp_attacking and not self.basic_attacking:
                     if self.mana >= self.attacks[0].mana_cost and self.attacks[0].is_ready():
-                        
                         attack = Attack_Display(
                             x=self.rect.centerx - 20 if self.facing_right else self.rect.centerx + 20,
                             y=self.rect.centery + 30,

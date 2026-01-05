@@ -207,7 +207,7 @@ import math
 import copy
 import pygame.sprite
 from global_vars import (IMMEDIATE_RUN,
-    width, height, icon, FPS, clock, screen, hero1, hero2, fire_wizard_icon, wanderer_magician_icon, fire_knight_icon, wind_hashashin_icon, water_princess_icon, forest_ranger_icon, yurei_icon, chthulu_icon,
+    width, height, icon, FPS, clock, screen, hero1, hero2, fire_wizard_icon, wanderer_magician_icon, fire_knight_icon, wind_hashashin_icon, water_princess_icon, forest_ranger_icon, yurei_icon, chthulu_icon, phantom_assassin_icon,
     white, red, black, green, cyan2, gold, play_button_img, text_box_img, loading_button_img, menu_button_img,
     waterfall_icon, lava_icon, dark_forest_icon, trees_icon, 
     DEFAULT_WIDTH, DEFAULT_HEIGHT, scale, center_pos, font_size, BASIC_ATK_COOLDOWN, BASIC_FRAME_DURATION, BASIC_ATK_DAMAGE, BASIC_ATK_DAMAGE2, BASIC_ATK_DAMAGE3, BASIC_ATK_DAMAGE4,
@@ -648,6 +648,7 @@ class Attack_Display(pygame.sprite.Sprite): #The Attack_Display class should han
                 stop_movement=(False, 0, 0, 1.0),
                 spawn_attack:dict=None, periodic_spawn:dict=None,
                 add_mana=False, add_mana_to_enemy=False, mana_mult=1,
+                reduce_mana=0,
                 damage_mode='single'#no use for now
                 , is_basic_attack=False#used to identify basic attacks for crit
                 ):
@@ -712,6 +713,8 @@ class Attack_Display(pygame.sprite.Sprite): #The Attack_Display class should han
         self.add_mana_to_enemy = add_mana_to_enemy
         self.mana_mult = mana_mult
         self.is_basic_attack = is_basic_attack
+
+        self.reduce_mana = reduce_mana
 
         self.frame_index = 0
         self.last_update_time = pygame.time.get_ticks()
@@ -796,6 +799,12 @@ class Attack_Display(pygame.sprite.Sprite): #The Attack_Display class should han
             crit_roll = random.random()
             if crit_roll < self.who_attacks.crit_chance:
                 damage_amount += damage_amount * self.who_attacks.crit_damage
+
+        if self.who_attacks.mana_burn_flat[0] > 0 and self.is_basic_attack: # burns mana at provided amount 
+            enemy.take_mana_burn(enemy, self.who_attacks.mana_burn_flat[0], self.who_attacks.mana_burn_flat[1])
+
+        if self.who_attacks.mana_burn_per[0] > 0 and self.is_basic_attack: # burns mana based on percentage of damage dealt (ex. dmg 5 -> 50% - 2.5 burn mana)
+            enemy.take_mana_burn(enemy, damage_amount * self.who_attacks.mana_burn_per[0], self.who_attacks.mana_burn_per[1])
         
         enemy.take_damage(
             damage_amount,
@@ -1453,6 +1462,10 @@ import hero_codes.chthulu as chthulu
 Chthulu = chthulu.Chthulu
 
 
+import hero_codes.phantom_assassin as phantom_assassin
+Phantom_Assassin = phantom_assassin.Phantom_Assassin
+
+
 
 
 # #-------------------------------------
@@ -1679,6 +1692,10 @@ class Item:
             "move_speed_per": "Move Speed",
             "cd_reduce_per": "Cooldown Reduction",
             "sp_increase_per": "Special Increase",
+            "mana_burn_per": "Mana Burn",
+            "mana_burn_per_dmg": "Mana Burn to Damage",
+            "mana_burn_flat": "Mana Burn",
+            "mana_burn_flat_dmg_per": "Mana Burn to Damage" # force display at percentage
         }
         
         # Types that are abilities and should not show values
@@ -2504,6 +2521,7 @@ def player_selection():
         PlayerSelector(fire_wizard_icon, (xpos1, height - yposlower), Fire_Wizard),
         PlayerSelector(wanderer_magician_icon, (xpos2, height - yposlower), Wanderer_Magician),
         PlayerSelector(fire_knight_icon, (xpos3, height - yposlower), Fire_Knight),
+        PlayerSelector(phantom_assassin_icon, (xpos4, height - yposlower), Phantom_Assassin),
         PlayerSelector(chthulu_icon, (xpos5, height - yposlower), Chthulu),
 
 
@@ -2517,6 +2535,7 @@ def player_selection():
         PlayerSelector(fire_wizard_icon, (xpos1, height - yposlower), Fire_Wizard),
         PlayerSelector(wanderer_magician_icon, (xpos2, height - yposlower), Wanderer_Magician),
         PlayerSelector(fire_knight_icon, (xpos3, height - yposlower), Fire_Knight),
+        PlayerSelector(phantom_assassin_icon, (xpos4, height - yposlower), Phantom_Assassin),
         PlayerSelector(chthulu_icon, (xpos5, height - yposlower), Chthulu),
 
         PlayerSelector(wind_hashashin_icon, (xpos3, height - yposupper), Wind_Hashashin),

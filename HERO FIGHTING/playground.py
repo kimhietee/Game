@@ -130,11 +130,23 @@ print(f'{23.1122038601983:.2f}')
 
 qwe = 123
 
-if qwe < 2:
-    print('asd')
-else:
-    raise ValueError('huh?')
+# if qwe < 2:
+#     print('asd')
+# else:
+#     raise ValueError('huh?')
+from pprint import pprint
+# some_value = [0, 'skill_1', ]
+skills = ['skill_1', 'skill_2', 'skill_3', 'skill_4']
 
+x = {}
+for i, v in enumerate(skills):
+    x[i] = v
+
+pprint(x)
+print(random.seed(12))
+
+
+# print('asd')
 # print(items*2)
 # print(solve(add=True))
 # print(solve(left=True))

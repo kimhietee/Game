@@ -112,6 +112,8 @@ class Player(pygame.sprite.Sprite):
         self.slow_source = None
         self.slow_speed = 0
         self.silenced = False
+        self.mana_burn_per = [0, 0] # [0] = mana burned, [1] = mana to damage
+        self.mana_burn_flat = [0, 0] # [0] = mana burned, [1] = mana to damage
         
         self.max_temp_hp = 0
         self.temp_hp = self.max_temp_hp
@@ -155,9 +157,11 @@ class Player(pygame.sprite.Sprite):
         # will be phased out soon
         self.basic_attack_cooldown = BASIC_ATK_COOLDOWN
 
-        self.basic_attack_animation_speed = DEFAULT_ANIMATION_SPEED # also set this one 
+        self.base_animation_speed = 120
+
+        self.basic_attack_animation_speed = self.base_animation_speed # also set this one 
         
-        self.default_animation_speed = DEFAULT_ANIMATION_SPEED
+        self.default_animation_speed = self.base_animation_speed
 
         self.attack_speed = self.calculate_effective_as()
 
@@ -686,12 +690,15 @@ class Player(pygame.sprite.Sprite):
                     self.attack_speed = self.calculate_effective_as()
                     self.basic_attack_cooldown = self.calculate_basic_attack_interval()
                     # self.basic_attack_animation_speed = DEFAULT_ANIMATION_SPEED - ((DEFAULT_ANIMATION_SPEED * (self.base_attack_time / self.basic_attack_cooldown) - DEFAULT_ANIMATION_SPEED))
-                    self.basic_attack_animation_speed = DEFAULT_ANIMATION_SPEED / (self.attack_speed / self.base_attack_speed)
+                    self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
 
                     self.attacks[4].cooldown = self.basic_attack_cooldown
                     self.attacks_special[4].cooldown = self.basic_attack_cooldown
 
-
+                elif typ == "mana_burn_flat":
+                    self.mana_burn_flat[0] = val
+                elif typ == "mana_burn_flat_dmg_per":
+                    self.mana_burn_flat[1] = val
 
                     # Flat attack speed: Reduce anim speed (faster anim = faster atk)
                     # Scale: 100 flat = -10 anim speed (arbitrary, from your old 0.1 * val)
@@ -802,13 +809,16 @@ class Player(pygame.sprite.Sprite):
                     self.attack_speed = self.calculate_effective_as()
                     self.basic_attack_cooldown = self.calculate_basic_attack_interval()
                     # self.basic_attack_animation_speed = DEFAULT_ANIMATION_SPEED - ((DEFAULT_ANIMATION_SPEED * (self.base_attack_time / self.basic_attack_cooldown) - DEFAULT_ANIMATION_SPEED))
-                    self.basic_attack_animation_speed = DEFAULT_ANIMATION_SPEED / (self.attack_speed / self.base_attack_speed)
+                    self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
 
                     self.attacks[4].cooldown = self.basic_attack_cooldown
                     self.attacks_special[4].cooldown = self.basic_attack_cooldown
 
 
-
+                elif typ == "mana_burn_per":
+                    self.mana_burn_per[0] = val
+                elif typ == "mana_burn_per_dmg":
+                    self.mana_burn_per[1] = val
 
 
                     # Percentage: Reduce anim speed and cd by %
@@ -900,7 +910,7 @@ class Player(pygame.sprite.Sprite):
         # Clamp current values
         self.health = min(self.health, self.max_health)
         self.mana = min(self.mana, self.max_mana)
-        self.basic_attack_animation_speed = max(10, min(1000, self.basic_attack_animation_speed))
+        self.basic_attack_animation_speed = max(10, min(50, self.basic_attack_animation_speed))
         # Reapply hero-specific (e.g., arrow_stuck)
         if hasattr(self, 'arrow_stuck_damage'):
             # reapply bonus
@@ -1985,7 +1995,10 @@ class Player(pygame.sprite.Sprite):
         if add_mana_to_enemy:
             self.add_mana(damage, mana_mult=mana_multiplier)
         
-
+        # if enemy is not None:
+        #     if enemy.mana_burn > 0:
+        #         self.take_mana(damage * enemy.mana_burn, mana_burn=True)
+                
 
         self.health = max(0, self.health - damage)  # Ensure health doesn't go below 0
         # print(f"THIS PLAYER took {damage} damage. Current health: {self.health}")
@@ -1995,9 +2008,23 @@ class Player(pygame.sprite.Sprite):
             self.die()  # Trigger the death process
             self.play_death_animation()  # Play death animation
 
-    def take_mana(self, mana):
+    def take_mana(self, mana, mana_burn=False):
+        if self.is_dead():
+            return
         self.mana = max(0, self.mana - mana)  # Ensure health doesn't go below 0
         # print(f"THIS PLAYER took {damage} damage. Current health: {self.health}")
+
+    def take_mana_burn(self, enemy, amount, burn_per:int=0):
+        'burns mana based on amount or damage dealt. deals damage based on mana burnt.'
+        if self.is_dead():
+            return
+        # Already calculated at Attack_Display class
+        self.mana = max(0, self.mana - amount)
+        mana_to_damage = amount * burn_per
+        enemy.take_damage(mana_to_damage, enemy=None)
+
+
+            
 
     
 
@@ -2447,7 +2474,15 @@ class Player(pygame.sprite.Sprite):
             final_position = position + offset
         return final_position
     
+    def is_skill_ready(self, attack_mode, skill):
+        '''if self.mana >= self.attacks[0].mana_cost and self.attacks[0].is_ready():'''
+        attack_mana_cost = {}
+        for num, val in enumerate(attack_mode):
+            attack_mana_cost[num] = val.mana_cost
+        # print(attack_mana_cost)
+        return self.mana >= attack_mana_cost[skill] and attack_mode[skill].is_ready()
 
+        
     def skill_duration(
         self,
         set_mode: tuple[str, int | float],
@@ -2792,6 +2827,7 @@ class Player(pygame.sprite.Sprite):
         self.detect_and_display_damage()
         self.detect_and_display_mana()
         self.update_damage_numbers(screen)
+        # print(self.basic_attack_animation_speed)
 
         if global_vars.SINGLE_MODE_ACTIVE and self.player_type == 2 and not global_vars.show_bot_stats:
             pass

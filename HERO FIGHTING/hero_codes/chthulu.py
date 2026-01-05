@@ -76,6 +76,8 @@ class Chthulu(Player):
         self.base_attack_speed = 100
         self.base_attack_time = 1900
 
+        self.base_animation_speed = 120
+
         self.health_regen = self.calculate_regen(self.base_health_regen, self.hp_regen_per_str, self.strength) #0.9 + 40 * 0.01 = 1.3
         self.mana_regen = self.calculate_regen(self.base_mana_regen, self.mana_regen_per_int, self.intelligence) #5.4 + 40 * 0.01 = 5.8
         self.basic_attack_damage = self.calculate_regen(self.base_attack_damage, self.agi_mult, self.agility, basic_attack=True) # 1.0 + 25 * 0.15 = 4.75
@@ -83,7 +85,7 @@ class Chthulu(Player):
         # Recalculate attack speed variables for fire wizard's base stats
         self.attack_speed = self.calculate_effective_as()
         self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-        self.basic_attack_animation_speed = global_vars.DEFAULT_ANIMATION_SPEED / (self.attack_speed / self.base_attack_speed)
+        self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
 
         # Base Stats
         self.max_health = (self.strength * self.str_mult)
@@ -809,7 +811,7 @@ class Chthulu(Player):
                 if basic_hotkey and not self.sp_attacking and not self.attacking1 and not self.attacking2 and not self.attacking3 and not self.basic_attacking:
                     if self.mana >= 0 and self.can_basic_attack():
                         attack = Attack_Display(
-                                x=self.rect.centerx + 110 if self.facing_right else self.rect.centerx - 110,
+                                x=self.rect.centerx + 105 if self.facing_right else self.rect.centerx - 105,
                                 y=self.rect.centery + 10,
                                 frames=self.blank_frame,
                                 frame_duration=600,
@@ -821,7 +823,7 @@ class Chthulu(Player):
                                 who_attacked=self.enemy,
 
                                 sound=(True, self.basic_sound, None, None),
-                                delay=(True, self.basic_attack_animation_speed * (300    / DEFAULT_ANIMATION_SPEED)), # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
+                                delay=(True, self.basic_attack_animation_speed * (300    / self.base_animation_speed)), # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
                                 moving=True,
                                 hitbox_scale_x=0.26,
                                 hitbox_scale_y=0.6,
@@ -1068,7 +1070,7 @@ class Chthulu(Player):
                 elif basic_hotkey and not self.sp_attacking and not self.attacking1 and not self.attacking2 and not self.attacking3 and not self.basic_attacking:
                     if self.mana >= 0 and self.can_basic_attack():
                         attack = Attack_Display(
-                                x=self.rect.centerx + 110 if self.facing_right else self.rect.centerx - 110,
+                                x=self.rect.centerx + 105 if self.facing_right else self.rect.centerx - 105,
                                 y=self.rect.centery + 10,
                                 frames=self.blank_frame,
                                 frame_duration=600,
@@ -1080,7 +1082,7 @@ class Chthulu(Player):
                                 who_attacked=self.enemy,
 
                                 sound=(True, self.basic_sound, None, None),
-                                delay=(True, self.basic_attack_animation_speed * (300    / DEFAULT_ANIMATION_SPEED)), # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
+                                delay=(True, self.basic_attack_animation_speed * (300    / self.base_animation_speed)), # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
                                 moving=True,
                                 hitbox_scale_x=0.26,
                                 hitbox_scale_y=0.6,

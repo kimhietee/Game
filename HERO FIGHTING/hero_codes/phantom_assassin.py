@@ -2,6 +2,7 @@ import pygame
 from player import Player
 from heroes import Attacks, Attack_Display, load_attack, load_attack_flipped
 
+import global_vars
 from global_vars import (
     # icon
     ICON_WIDTH, ICON_HEIGHT, 
@@ -15,7 +16,7 @@ from global_vars import (
     DEFAULT_SPECIAL_SKILL_COOLDOWN,
     DEFAULT_HEALTH_REGENERATION, DEFAULT_MANA_REGENERATION,
 )
-class Phantom_Assasin(Player):
+class Phantom_Assassin(Player):
     def __init__(self, player_type, enemy):
         super().__init__(player_type, enemy)
 
@@ -30,7 +31,7 @@ class Phantom_Assasin(Player):
         # ----- Core -----
         self.player_type = player_type
         self.name = "Phantom Assasin"
-        self.hitbox_rect = pygame.rect(0, 0, 50, 100)
+        self.hitbox_rect = pygame.Rect(0, 0, 50, 100)
         self.x = 50
         self.y = 50
         self.width = 200
@@ -41,12 +42,15 @@ class Phantom_Assasin(Player):
         self.intelligence = 40
         self.agility = 30
 
-        self.health_regen = self.regen_per_second(1.2)
-        self.mana_regen = self.regen_per_second(5.7)
+        self.base_health_regen = 0.8
+        self.base_mana_regen = 5.3
+        self.base_attack_damage = 0.1
 
-        self.hp_regen_rate = DEFAULT_HEALTH_REGENERATION
-        self.mana_regen_rate = DEFAULT_MANA_REGENERATION
-
+        self.base_attack_speed = 100
+        self.base_attack_time = 1700
+        
+        self.base_animation_speed = 120
+        
         self.atk1_mana_cost = 20
         self.atk2_mana_cost = 20
         self.atk3_mana_cost = 20
@@ -67,7 +71,7 @@ class Phantom_Assasin(Player):
         self.special_atk3_cooldown = 200
         self.special_atk4_cooldown = 200
 
-        self.special_mana_cost_list = [self.sp_atk1_mana_cost, self.sp_atk2_mana_cost, self.sp_atk3_mana_cost, self.sp_atk4_mana_cost]
+        
 
         # Add more if damage list is not sufficient
         #   - base_damage, attack_frames, *variable
@@ -99,15 +103,17 @@ class Phantom_Assasin(Player):
         #   - str [0] file path
         #   - int [1] frame count - turn it into tuple to make it column and rows
         #   - bool [2] starts at zero 
-        basic_attack_animation = [r'assets\attacks\Basic Attack\wanderer magician\basic atk\basic atk_', 5, False]
-        jumping_animation = [r'assets\characters\Phantom Assassin\Jump.png', 2, False]
-        running_animation = [r'assets\characters\Phantom Assassin\Run.png', 8, False]
-        idle_animation = [r'assets\characters\Phantom Assassin\Idle.png', 8, False]
-        death_animation = [r'assets\characters\Phantom Assassin\Death.png', 6, False]
-        atk1_animation = [r'assets\characters\Phantom Assassin\Attack1.png', 6, False]
-        atk2_animation = [r'assets\characters\Phantom Assassin\Attack2.png', 6, False]
-        atk3_animiation = [r'assets\characters\Phantom Assassin\Attack3.png', 6, False]
-        atk4_animation = [r'assets\characters\Phantom Assassin\Attack4.png', 6, False]
+        basic_attack_animation = [r'assets\attacks\Basic Attack\wanderer magician\basic atk\basic atk_', 5, False, 'frames']
+        jumping_animation = [r'assets\characters\Phantom Assassin\Jump.png', (1,2), False, 'spritesheet']
+        falling_animation = [r'assets\characters\Phantom Assassin\Fall.png', (1,2), False, 'spritesheet']
+
+        running_animation = [r'assets\characters\Phantom Assassin\Run.png', (1,8), False, 'spritesheet']
+        idle_animation = [r'assets\characters\Phantom Assassin\Idle.png', (1,8), False, 'spritesheet']
+        death_animation = [r'assets\characters\Phantom Assassin\Death.png', (1,6), False, 'spritesheet']
+        atk1_animation = [r'assets\characters\Phantom Assassin\Attack1.png', (1,6), False, 'spritesheet']
+        atk2_animation = [r'assets\characters\Phantom Assassin\Attack2.png', (1,6), False, 'spritesheet']
+        atk3_animiation = [r'assets\characters\Phantom Assassin\Attack3.png', (1,6), False, 'spritesheet']
+        atk4_animation = [r'assets\characters\Phantom Assassin\Attack4.png', (1,6), False, 'spritesheet']
 
                 
         # Attack Frame Count
@@ -156,24 +162,31 @@ class Phantom_Assasin(Player):
         self.atk4 = self.load_img_frames(atk4[0], atk4[1], atk4[2], DEFAULT_CHAR_SIZE)
 
         # Load Character Frames (search for the correct method to use in the base class (Player))
-        self.player_basic = self.load_img_frames(basic_attack_animation[0], basic_attack_animation[1], basic_attack_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_basic_flipped = self.load_img_frames_flipped(basic_attack_animation[0], basic_attack_animation[1], basic_attack_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_jump = self.load_img_frames(jumping_animation[0], jumping_animation[1], jumping_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_jump_flipped = self.load_img_frames_flipped(jumping_animation[0], jumping_animation[1], jumping_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_idle = self.load_img_frames(idle_animation[0], idle_animation[1], idle_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_idle_flipped = self.load_img_frames_flipped(idle_animation[0], idle_animation[1], idle_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_run = self.load_img_frames(running_animation[0], running_animation[1], running_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_run_flipped = self.load_img_frames_flipped(running_animation[0], running_animation[1], running_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_death = self.load_img_frames(death_animation[0], death_animation[1], death_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_death_flipped = self.load_img_frames_flipped(death_animation[0], death_animation[1], death_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_atk1 = self.load_img_frames(atk1_animation[0], atk1_animation[1], atk1_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_atk1_flipped = self.load_img_frames_flipped(atk1_animation[0], atk1_animation[1], atk1_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_atk2 = self.load_img_frames(atk2_animation[0], atk2_animation[1], atk2_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_atk2_flipped = self.load_img_frames_flipped(atk2_animation[0], atk2_animation[1], atk2_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_atk3 = self.load_img_frames(atk3_animiation[0], atk3_animiation[1], atk3_animiation[2], DEFAULT_CHAR_SIZE)
-        self.player_atk3_flipped = self.load_img_frames_flipped(atk3_animiation[0], atk3_animiation[1], atk3_animiation[2], DEFAULT_CHAR_SIZE)
-        self.player_sp = self.load_img_frames(atk4_animation[0], atk4_animation[1], atk4_animation[2], DEFAULT_CHAR_SIZE)
-        self.player_sp_flipped = self.load_img_frames_flipped(atk4_animation[0], atk4_animation[1], atk4_animation[2], DEFAULT_CHAR_SIZE)
+        self.player_jump = self.load_img_frames_v2(jumping_animation[0], jumping_animation[1], jumping_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
+        self.player_jump_flipped = self.load_img_frames_v2(jumping_animation[0], jumping_animation[1], jumping_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
+        self.player_falling = self.load_img_frames_v2(falling_animation[0], falling_animation[1], falling_animation[2], DEFAULT_CHAR_SIZE, falling_animation[3])
+        self.player_falling_flipped = self.load_img_frames_v2(falling_animation[0], falling_animation[1], falling_animation[2], DEFAULT_CHAR_SIZE, falling_animation[3], True)  
+
+        self.player_jump = self.player_jump + self.player_falling
+        self.player_jump_flipped = self.player_jump_flipped + self.player_falling_flipped
+         
+        self.player_idle = self.load_img_frames_v2(idle_animation[0], idle_animation[1], idle_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
+        self.player_idle_flipped = self.load_img_frames_v2(idle_animation[0], idle_animation[1], idle_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
+        self.player_run = self.load_img_frames_v2(running_animation[0], running_animation[1], running_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
+        self.player_run_flipped = self.load_img_frames_v2(running_animation[0], running_animation[1], running_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
+        self.player_death = self.load_img_frames_v2(death_animation[0], death_animation[1], death_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
+        self.player_death_flipped = self.load_img_frames_v2(death_animation[0], death_animation[1], death_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
+        self.player_atk1 = self.load_img_frames_v2(atk1_animation[0], atk1_animation[1], atk1_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
+        self.player_atk1_flipped = self.load_img_frames_v2(atk1_animation[0], atk1_animation[1], atk1_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
+        self.player_atk2 = self.load_img_frames_v2(atk2_animation[0], atk2_animation[1], atk2_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
+        self.player_atk2_flipped = self.load_img_frames_v2(atk2_animation[0], atk2_animation[1], atk2_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
+        self.player_atk3 = self.load_img_frames_v2(atk3_animiation[0], atk3_animiation[1], atk3_animiation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
+        self.player_atk3_flipped = self.load_img_frames_v2(atk3_animiation[0], atk3_animiation[1], atk3_animiation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
+        self.player_sp = self.load_img_frames_v2(atk4_animation[0], atk4_animation[1], atk4_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
+        self.player_sp_flipped = self.load_img_frames_v2(atk4_animation[0], atk4_animation[1], atk4_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
+        
+        self.player_basic = self.player_atk1
+        self.player_basic_flipped = self.player_atk1_flipped
 
         # Player Image and Rect
         self.image = self.player_idle[self.player_idle_index]
@@ -184,7 +197,14 @@ class Phantom_Assasin(Player):
         self.max_mana = self.intelligence * self.int_mult
         self.health = self.max_health
         self.mana = self.max_mana
-        self.basic_attack_damage = self.agility * self.agi_mult
+
+        self.health_regen = self.calculate_regen(self.base_health_regen, self.hp_regen_per_str, self.strength) #0.8 + 40 * 0.01 = 1.2
+        self.mana_regen = self.calculate_regen(self.base_mana_regen, self.mana_regen_per_int, self.intelligence) #5.3 + 40 * 0.01 = 5.7
+        self.basic_attack_damage = self.calculate_regen(self.base_attack_damage, self.agi_mult, self.agility, basic_attack=True) # 0.1 + 26 * 0.1 = 2.7
+
+        self.attack_speed = self.calculate_effective_as()
+        self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
+        
         # set to new hp/mana
         self.white_health_p1 = self.health
         self.white_mana_p1 = self.mana   
@@ -241,7 +261,13 @@ class Phantom_Assasin(Player):
             self.atk2_mana_cost,
             self.atk3_mana_cost,
             self.sp_mana_cost
-            ]
+        ]
+        self.special_mana_cost_list = [
+            self.sp_atk1_mana_cost,
+            self.sp_atk2_mana_cost,
+            self.sp_atk3_mana_cost,
+            self.sp_atk4_mana_cost
+        ]
         # modify the index on which skill has lowest mana cost
         self.lowest_mana_cost = self.mana_cost_list[0]
 
@@ -391,7 +417,7 @@ class Phantom_Assasin(Player):
         if not self.is_jumping():
             if self.is_pressing(hotkey1) and not self.is_busy_attacking():
                 if self.is_in_basic_mode():
-                    if self.is_skill_ready(self.mana, self.skill_1):
+                    if self.is_skill_ready(self.attacks, self.skill_1):
                         
                         frame_duration, repeat_animation = self.skill_duration(
                             set_mode = ('seconds', 1000),

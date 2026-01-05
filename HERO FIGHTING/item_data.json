@@ -105,8 +105,8 @@
       "name": "Mana Essence",
       "image_path": "assets/item icons/new items/2 Icons with back/Icons_26.png",
       "bonus_type": ["mana_refund_per"],
-      "bonus_value": [0.75],
-      "description": "Converts 75% damage dealt to enemy into@mana and grants to the attacker."
+      "bonus_value": [0.60],
+      "description": "Converts 60% damage dealt to enemy into@mana and grants to the attacker."
     },
 
 
@@ -258,11 +258,11 @@
       "description": "Special meter fills 50% faster."
     },
     {
-      "name": "nothing",
-      "image_path": "assets/item icons/new items/2 Icons with back/Icons_01.png",
-      "bonus_type": [],
-      "bonus_value": [],
-      "description": "Does nothing."
+      "name": "Mana Leech",
+      "image_path": "assets/item icons/new items/2 Icons with back/Icons_21.png",
+      "bonus_type": ["mana_burn_flat", "mana_burn_flat_dmg_per"],
+      "bonus_value": [5, 0.15],
+      "description": "Burns 5 mana for every attack dealt to enemy.@Additionally, deals 15% of burned mana as damage."
     },
     {
       "name": "nothing",

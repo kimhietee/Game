@@ -570,8 +570,8 @@ def game(bg=None):
 
     #testing purposes
     #testing
-    main.hero1.x_pos += 250
-    main.hero2.x_pos -= 150
+    # main.hero1.x_pos += 250
+    # main.hero2.x_pos -= 150
 
     
 

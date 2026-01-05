@@ -236,6 +236,7 @@ water_princess_icon = r'assets\hero profiles\Water Princess.png'
 forest_ranger_icon = r'assets\hero profiles\Forest Ranger.png'
 yurei_icon = r'assets\skill icons\onre\Yuriei.jpg'
 chthulu_icon = r'assets\hero profiles\Chthulu.png'
+phantom_assassin_icon = r'assets\hero profiles\phantom assassin prof.png'
 
 #buttons
 play_button_img = r'assets\UI\buttons\BTN PLAY.png'

@@ -85,6 +85,8 @@ class Water_Princess(Player):
         self.base_attack_speed = 80
         self.base_attack_time = 3200
 
+        self.base_animation_speed = 120
+
         self.health_regen = self.calculate_regen(self.base_health_regen, self.hp_regen_per_str, self.strength) #0.8 + 40 * 0.01 = 1.2
         self.mana_regen = self.calculate_regen(self.base_mana_regen, self.mana_regen_per_int, self.intelligence) #6.05 + 48 * 0.01 = 6.53
         self.basic_attack_damage = self.calculate_regen(self.base_attack_damage, self.agi_mult, self.agility, basic_attack=True) # 0.0 + 20 * 0.1 = 2.0
@@ -92,7 +94,7 @@ class Water_Princess(Player):
         # Recalculate attack speed variables for fire wizard's base stats
         self.attack_speed = self.calculate_effective_as()
         self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-        self.basic_attack_animation_speed = global_vars.DEFAULT_ANIMATION_SPEED / (self.attack_speed / self.base_attack_speed)
+        self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
 
         # Base Stats
         self.max_health = (self.strength * self.str_mult)
@@ -614,7 +616,7 @@ class Water_Princess(Player):
                                 final_dmg=i[4],
                                 who_attacks=self,
                                 who_attacked=self.enemy,
-                                delay=(True, self.basic_attack_animation_speed * (300 / DEFAULT_ANIMATION_SPEED)), # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
+                                delay=(True, self.basic_attack_animation_speed * (300 / self.base_animation_speed)), # self.basic_attack_animation_speed * (Base Delay/Base Animation Speed)
                                 sound=(True, i[5], None, None),
 
                                 moving=i[6],
@@ -813,7 +815,7 @@ class Water_Princess(Player):
                         for i in [
                             (200, self.basic_atk2, self.basic_atk2_flipped, 30, (50, 60, 0.4, 0.2), self.basic_attack_damage*self.atk_instance[0]),
                             (1000, self.basic_slash, self.basic_slash_flipped, 100, (70, 80, 0.8, 0.6), self.basic_attack_damage*self.atk_instance[1]),
-                            (2000, self.basic_atk1, self.basic_atk1_flipped, 80, (60, 75, 0.75, 0.2), self.basic_attack_damage*self.atk_instance[2])
+                            (2200, self.basic_atk1, self.basic_atk1_flipped, 80, (60, 75, 0.75, 0.2), self.basic_attack_damage*self.atk_instance[2])
                             
                             ]:
                             attack = Attack_Display(
@@ -829,7 +831,7 @@ class Water_Princess(Player):
                                 who_attacked=self.enemy,
 
                                 sound=(True, self.basic_sound, None, None),
-                                delay=(True, self.basic_attack_animation_speed * (i[0] / DEFAULT_ANIMATION_SPEED)), # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
+                                delay=(True, self.basic_attack_animation_speed * (i[0] / self.base_animation_speed)), # self.basic_attack_animation_speed * (Base Delay/Base Animation Speed)
                                 moving=True,
                                 hitbox_scale_x=i[4][2],
                                 hitbox_scale_y=i[4][3]
@@ -1172,7 +1174,7 @@ class Water_Princess(Player):
                         for i in [
                             (200, self.basic_atk2, self.basic_atk2_flipped, 30, (50, 60, 0.4, 0.2), self.basic_attack_damage*self.special_instance[0],(False, 1, 1)),
                             (1000, self.basic_slash, self.basic_slash_flipped, 100, (70, 80, 0.8, 0.6), self.basic_attack_damage*self.special_instance[1],(False, 1, 1)),
-                            (2000, self.basic_atk1, self.basic_atk1_flipped, 80, (60, 75, 0.75, 0.2), self.basic_attack_damage*self.special_instance[2],(True, 1, 1))
+                            (2200, self.basic_atk1, self.basic_atk1_flipped, 80, (60, 75, 0.75, 0.2), self.basic_attack_damage*self.special_instance[2],(True, 1, 1))
                             
                             ]:
                             attack = Attack_Display(
@@ -1188,7 +1190,7 @@ class Water_Princess(Player):
                                 who_attacked=self.enemy,
 
                                 sound=(True, self.basic_sound, None, None),
-                                delay=(True, self.basic_attack_animation_speed * (i[0] / DEFAULT_ANIMATION_SPEED)), # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
+                                delay=(True, self.basic_attack_animation_speed * (i[0] / self.base_animation_speed)), # self.basic_attack_animation_speed * (Base Delay/Base Animation Speed)
                                 moving=True,
                                 hitbox_scale_x=i[4][2],
                                 hitbox_scale_y=i[4][3],

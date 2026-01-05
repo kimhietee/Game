@@ -84,6 +84,8 @@ class Wanderer_Magician(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING 
         self.base_attack_speed = 100
         self.base_attack_time = 1600
 
+        self.base_animation_speed = 120
+
         self.health_regen = self.calculate_regen(self.base_health_regen, self.hp_regen_per_str, self.strength) #0.6 + 40 * 0.01 = 1.0
         self.mana_regen = self.calculate_regen(self.base_mana_regen, self.mana_regen_per_int, self.intelligence) #6.75 + 36 * 0.01 = 7.01
         self.basic_attack_damage = self.calculate_regen(self.base_attack_damage, self.agi_mult, self.agility, basic_attack=True) # 0.0 + 35 * 0.1 = 3.5
@@ -91,7 +93,7 @@ class Wanderer_Magician(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING 
         # Recalculate attack speed variables for fire wizard's base stats
         self.attack_speed = self.calculate_effective_as()
         self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-        self.basic_attack_animation_speed = global_vars.DEFAULT_ANIMATION_SPEED / (self.attack_speed / self.base_attack_speed)
+        self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
         
         self.base_max_mana = self.intelligence * self.int_mult
         
@@ -581,7 +583,7 @@ class Wanderer_Magician(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING 
 
                             sound=(True, self.atk1_sound, None, None),
                             kill_collide=True,
-                            delay=(True, self.basic_attack_animation_speed * (500 / DEFAULT_ANIMATION_SPEED)), # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed) # 500/120
+                            delay=(True, self.basic_attack_animation_speed * (500 / self.base_animation_speed)), # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed) # 500/120
                             is_basic_attack=True
                         )
                     
@@ -813,7 +815,7 @@ class Wanderer_Magician(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING 
                             frame_duration=100,
                             repeat_animation=5,
                             speed=8 if self.facing_right else -8,
-                            dmg=self.basic_attack_damage/2.5,
+                            dmg=(self.basic_attack_damage / 3) * DEFAULT_BASIC_ATK_DMG_BONUS,
                             final_dmg=0,
                             who_attacks=self,
                             who_attacked=self.enemy,
@@ -821,7 +823,7 @@ class Wanderer_Magician(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING 
 
                             sound=(True, self.basic_sound, self.atk1_sound, None),
                             kill_collide=True,
-                           delay=(True, self.basic_attack_animation_speed * (i[0] / DEFAULT_ANIMATION_SPEED)), # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
+                            delay=(True, self.basic_attack_animation_speed * (i[0] / self.base_animation_speed)), # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
 
                             hitbox_scale_x=0.2,
                             hitbox_scale_y=0.2,

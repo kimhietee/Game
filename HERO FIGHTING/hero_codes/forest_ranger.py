@@ -109,8 +109,8 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
 
         # Recalculate attack speed variables for fire wizard's base stats
         self.attack_speed = self.calculate_effective_as()
-        self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-        self.basic_attack_animation_speed = global_vars.DEFAULT_ANIMATION_SPEED / (self.attack_speed / self.base_attack_speed)
+        self.base_animation_speed = 120
+        self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
         
         self.max_health = self.strength * self.str_mult
         self.max_mana = self.intelligence * self.int_mult
@@ -479,7 +479,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
         self.atk_hasted = False
         self.was_hasted = False
         self.atk_haste_duration = 0
-        self.haste_value = DEFAULT_ANIMATION_SPEED #(120) #default, change in skill 1 config
+        self.haste_value = self.base_animation_speed #(120) #default, change in skill 1 config
         self.default_atk_speed = self.basic_attack_animation_speed
 
         self.jump_attack_pending = False
@@ -652,7 +652,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
                             moving=True,
                             sound=(True, self.atk1_sound, None, None),
                             kill_collide=True,                              # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
-                            delay=(True, self.basic_attack_animation_speed * (1100 / DEFAULT_ANIMATION_SPEED)), #120*9.16667 = 1100 -> attack delay
+                            delay=(True, self.basic_attack_animation_speed * (1100 / self.base_animation_speed)), #120*9.16667 = 1100 -> attack delay
 
                             hitbox_scale_x=0.1,
                             hitbox_scale_y=0.1,
@@ -847,7 +847,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
                             moving=True,
                             sound=(True, self.atk1_sound, None, None),
                             kill_collide=True,                              # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
-                            delay=(True, self.basic_attack_animation_speed * (1100 / DEFAULT_ANIMATION_SPEED)), # (1100/120=9.16667): 120*9.16667 = 1100 -> attack delay
+                            delay=(True, self.basic_attack_animation_speed * (1100 / self.base_animation_speed)), # (1100/120=9.16667): 120*9.16667 = 1100 -> attack delay
 
                             hitbox_scale_x=0.1,
                             hitbox_scale_y=0.1,
@@ -1000,7 +1000,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
                             moving=True,
                             sound=(True, self.atk1_sound, None, None),
                             kill_collide=True,                              # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
-                            delay=(True, self.basic_attack_animation_speed * (1100 / DEFAULT_ANIMATION_SPEED)), #120*9.16667 = 1100 -> attack delay
+                            delay=(True, self.basic_attack_animation_speed * (1100 / self.base_animation_speed)), #120*9.16667 = 1100 -> attack delay
 
                             hitbox_scale_x=0.1,
                             hitbox_scale_y=0.1,
@@ -1246,7 +1246,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
                             moving=True,
                             sound=(True, self.atk1_sound, None, None),
                             kill_collide=True,                              # self.basic_attack_animation_speed * (Base Delay/Default Basic Attack Speed)
-                            delay=(True, self.basic_attack_animation_speed * (1100 / DEFAULT_ANIMATION_SPEED)), # (1100/120=9.16667): 120*9.16667 = 1100 -> attack delay
+                            delay=(True, self.basic_attack_animation_speed * (1100 / self.base_animation_speed)), # (1100/120=9.16667): 120*9.16667 = 1100 -> attack delay
                             hitbox_scale_x=0.1,
                             hitbox_scale_y=0.1,
 
@@ -1417,7 +1417,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
             self.speed = self.default_speed * 1.5  # increase move speed
             self.attack_speed = self.calculate_effective_as()
             self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-            self.basic_attack_animation_speed = global_vars.DEFAULT_ANIMATION_SPEED / (self.attack_speed / self.base_attack_speed)
+            self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
             self.attacks[4].cooldown = self.basic_attack_cooldown
             self.attacks_special[4].cooldown = self.basic_attack_cooldown
             self.was_hasted = True
@@ -1426,7 +1426,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
             self.speed = self.default_speed  # reset move speed
             self.attack_speed = self.calculate_effective_as()
             self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-            self.basic_attack_animation_speed = global_vars.DEFAULT_ANIMATION_SPEED / (self.attack_speed / self.base_attack_speed)
+            self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
             self.attacks[4].cooldown = self.basic_attack_cooldown
             self.attacks_special[4].cooldown = self.basic_attack_cooldown
             self.was_hasted = False

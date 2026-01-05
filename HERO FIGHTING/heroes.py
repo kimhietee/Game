@@ -221,7 +221,7 @@ from global_vars import (IMMEDIATE_RUN,
     WHITE_BAR_SPEED_HP, WHITE_BAR_SPEED_MANA, TEXT_DISTANCE_BETWEEN_STATUS_AND_TEXT,
     PLAYER_1, PLAYER_2, PLAYER_1_SELECTED_HERO, PLAYER_2_SELECTED_HERO, PLAYER_1_ICON, PLAYER_2_ICON,
     DISABLE_MANA_REGEN,
-    attack_display, MULT, dmg_mult,
+    attack_display, MULT, dmg_mult, item_page,
 
     ZERO_WIDTH, TOTAL_WIDTH, item_equip_hashmap
 )
@@ -2044,7 +2044,7 @@ class PlayerSelector:
 
     DESELECT_Y_OFFSET = - (height * 0.0625)
 
-    def __init__(self, image, center_pos, class_item, small=False, custom_size=None, custom_border=(15,15)):
+    def __init__(self, image, center_pos, class_item, small=False, custom_size=None, custom_border=(15,15), static_pos:tuple=(1,1)):
         """
         Args:
             image: str path or Surface
@@ -2094,6 +2094,13 @@ class PlayerSelector:
 
         self.original_pos = center_pos
         self.target_pos = center_pos
+
+        self.static_pos_2 = center_pos
+
+        
+        self.static_pos_1 = static_pos
+
+
         self.move_speed = 0.1
         # print(self.original_pos)
         self.highlight_offset = (0, -50)  # Move right 10, up 20 when selected
@@ -2478,6 +2485,71 @@ slot = ImageButton(
 # print('opening player selection')
 # print(global_vars.SMOOTH_BG)
 
+def auto_align(instant=True):
+    for i in p1_items:
+        i.original_pos = i.static_pos_1
+        if not i.selected:
+            i.set_position(i.original_pos, instant)
+
+    for i in p2_items:
+        i.original_pos = i.static_pos_1
+        if not i.selected:
+            i.set_position(i.original_pos, instant)
+
+
+item_spacing_w = 7
+item_max_y = 4
+def paginating( move:bool, instant:bool = False, max_height = item_max_y):
+        auto_align(instant)
+        global item_page
+        print(f"Current Page = {item_page}")
+        baseline = item_spacing_w * max_height
+        total_page = ((len(p1_items)-1)//(baseline)) + 1
+        print(f"Baseline = {baseline}")
+        print(f" p1 items = {len(p1_items)}")
+        print(f" total page {total_page}")
+        
+        if move:
+            if item_page < total_page:
+                item_page += 1
+        elif not move:
+            if item_page > 1:
+                item_page -= 1
+        
+                # p1_items[i].target_pos = p1_items[i].static_pos_1
+            
+        for i in range(baseline * (item_page-1), baseline * item_page):
+            try:
+                p1_items[i].original_pos = p1_items[i].static_pos_2
+                # p1_items[i].target_pos = p1_items[i].static_pos_1
+                if not p1_items[i].selected:
+                    # print("this item is not selected")
+                    # print(p1_items[i].static_pos_2)
+                    # print(p1_items[i].original_pos)
+                    p1_items[i].set_position(p1_items[i].original_pos)
+                else:
+                    print("selected item")
+            except:
+                print("out of bound")
+                break
+
+        for i in range(baseline * (item_page-1), baseline * item_page):
+            try:
+                p2_items[i].original_pos = p2_items[i].static_pos_2
+                # p1_items[i].target_pos = p1_items[i].static_pos_1
+                if not p2_items[i].selected:
+                    # print("this item is not selected")
+                    # print(p1_items[i].static_pos_2)
+                    # print(p1_items[i].original_pos)
+                    p2_items[i].set_position(p2_items[i].original_pos)
+                else:
+                    print("selected item")
+            except:
+                print("out of bound")
+                break
+
+
+
 # from global_vars import quick_run_hero1, quick_run_hero2
 def player_selection():
     global map_selected
@@ -2550,23 +2622,41 @@ def player_selection():
     item_gap_x = width * 0.05859375 
     item_gap_y = 100
 
-    item_spacing_w = 7
-    def position_alignnment_Y(max_width:int, indexed:int, height_gap = upper, item_gap_x = item_gap_x, item_gap_y = item_gap_y):
+   
+    def position_alignnment_Y(max_width:int, indexed:int, max_height:int = item_max_y, height_gap = upper, item_gap_x = item_gap_x, item_gap_y = item_gap_y):
+        baseline = (max_height * max_width)
         indexed = indexed - 1
+        indexed = indexed % baseline
+
         new_indexed = 1 + (indexed - (max_width) * ((indexed) // (max_width)))
         # print(f"{indexed} - ({max_width}) * ({indexed}) // ({1+ max_width})")
         # print(f"{item_gap_x} - {new_indexed}, {height} - ({upper} - ({item_gap_y} * ({indexed}) // (1 + {max_width})))))")
         return ((item_gap_x * new_indexed),height - (height_gap - (item_gap_y * ((indexed) // (max_width)))))
 
+    
+
+
 
     # Items (small icons — use small=True)
     p1_items = []
     for x,y in enumerate(items):
-        p1_items.append(PlayerSelector(y.image, position_alignnment_Y(item_spacing_w, x+1), y, small=True),)
+        p1_items.append(PlayerSelector(
+            y.image, 
+            position_alignnment_Y(item_spacing_w, x+1), 
+            y, 
+            small=True,
+            static_pos = (width - (width * 1.1),position_alignnment_Y(item_spacing_w, x+1)[1]))
+            )
 
     p2_items = []
     for x,y in enumerate(items):
-        p2_items.append(PlayerSelector(y.image, position_alignnment_Y(item_spacing_w, x+1), y, small=True),)
+        p2_items.append(PlayerSelector(
+            y.image, 
+            position_alignnment_Y(item_spacing_w, x+1), 
+            y, 
+            small=True,
+            static_pos = (width - (width * 1.1),position_alignnment_Y(item_spacing_w, x+1)[1]))
+            )
     #     # PlayerSelector(items[0].image, (75, height - upper), items[0], small=True),
     #     PlayerSelector(items[0].image, position_alignnment_Y(item_spacing_w, 1), items[0], small=True),
     #     PlayerSelector(items[1].image, position_alignnment_Y(item_spacing_w, 2), items[1], small=True),
@@ -2667,6 +2757,11 @@ def player_selection():
     random_p1 = RectButton((width/2), height*0.7, global_vars.FONT_PATH, int(height * 0.025), (0, 255, 0), "Random")
     random_p2 = RectButton((width/2), height*0.7, global_vars.FONT_PATH, int(height * 0.025), (0, 255, 0), "Random")
 
+
+    next_page_button = RectButton((width/3.5), height*0.75, global_vars.FONT_PATH, int(height * 0.025), (0, 255, 0), ">", height_position=0)
+    back_page_button = RectButton((width/6), height*0.75, global_vars.FONT_PATH, int(height * 0.025), (0, 255, 0), "<", height_position=0)
+
+
     toggle_bot_button = RectButton((width/2), height*0.8, global_vars.FONT_PATH, int(height * 0.025), (0, 255, 0), "Toggle Bot")
     # chosen hero will be the name
     def get_name(v:str):
@@ -2677,6 +2772,8 @@ def player_selection():
             return r[0] +  (' ' + r[1]) +  (' ' + r[2])
         else:
             return r[0]
+    paginating(False, True)
+    
     while True:
         if immediate_run: # DEV OPTION ONLY
             PLAYER_1_SELECTED_HERO = Wanderer_Magician
@@ -2709,27 +2806,33 @@ def player_selection():
                 if menu_button.is_clicked(event.pos):
                     menu() 
                     return
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            # if event.type == pygame.MOUSEBUTTONDOWN:
                 if all_items_button.is_clicked(event.pos):
                     if player_2_choose:
                         global_vars.all_items = all_items_button.toggle(global_vars.all_items)
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            # if event.type == pygame.MOUSEBUTTONDOWN:
                 if x2_bot.is_clicked(event.pos):
                     if player_2_choose:
                         global_vars.toggle_hero3 = x2_bot.toggle(global_vars.toggle_hero3)
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            # if event.type == pygame.MOUSEBUTTONDOWN:
                 if random_p1.is_clicked(event.pos):
                     if player_1_choose:
                         global_vars.random_pick_p1 = random_p1.toggle(global_vars.random_pick_p1)
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            # if event.type == pygame.MOUSEBUTTONDOWN:
                 if random_p2.is_clicked(event.pos):
                     if player_2_choose:
                         global_vars.random_pick_p2 = random_p2.toggle(global_vars.random_pick_p2)
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            # if event.type == pygame.MOUSEBUTTONDOWN:
                 if toggle_bot_button.is_clicked(event.pos):
                     if player_1_choose:
                         global_vars.HERO1_BOT = toggle_bot_button.toggle(global_vars.HERO1_BOT)
-                
+            # if event.type == pygame.MOUSEBUTTONDOWN:
+                if next_page_button.is_clicked(event.pos):
+                    print('next page')
+                    paginating(True)
+                if back_page_button.is_clicked(event.pos):
+                    print('back page')
+                    paginating(False)
 
         # screen.blit(background, (0, 0))
         Animate_BG.waterfall_night_bg.display(screen, speed=50) if not global_vars.SMOOTH_BG else Animate_BG.smooth_waterfall_night_bg.display(screen, speed=50)
@@ -2752,6 +2855,9 @@ def player_selection():
             
             random_p1.update(mouse_pos, global_vars.random_pick_p1)
             random_p1.draw(screen, global_vars.TEXT_ANTI_ALIASING)
+
+            # print(pygame.mouse.get_pressed())
+            
             # fire_wizard_select.update(mouse_pos, mouse_press)
             # wanderer_magician_select.update(mouse_pos, mouse_press)
 
@@ -2766,6 +2872,13 @@ def player_selection():
                     # selector.the_info((width + (width * 0.322), height - 525)) #previous position
                 if selector.is_selected(): # when hero selection
                     PLAYER_1_SELECTED_HERO = selector.get_associated()
+                    create_title(f"{item_page}", font, 0.5, height * 0.78, modify_xpos=width*0.24)
+                    next_page_button.update(mouse_pos, (True if next_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
+                    next_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
+
+                    back_page_button.update(mouse_pos, (True if back_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
+                    back_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
+
                     if selector.selected:
                         selector.set_position((75, height- (height * 0.07)))
 
@@ -2841,7 +2954,14 @@ def player_selection():
                 if selector.hovered:
                     selector.show_hover_tooltip(mouse_pos)
                 if selector.is_selected():
+                    create_title(f"{item_page}", font, 0.5, height * 0.78, modify_xpos=width*0.24)
                     PLAYER_2_SELECTED_HERO = selector.get_associated()
+                    next_page_button.update(mouse_pos, (True if next_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
+                    next_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
+
+                    back_page_button.update(mouse_pos, (True if back_page_button.is_clicked(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] else False))
+                    back_page_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
+
                     if selector.selected:
                         selector.set_position((75, height-50))
 

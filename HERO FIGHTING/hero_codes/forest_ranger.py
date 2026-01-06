@@ -711,7 +711,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
                                 }
                             }
                         }
-                            ,is_basic_attack=True
+                            # ,is_basic_attack=True
                             )
                         attack_display.add(attack)
                         self.mana -=  self.attacks[1].mana_cost
@@ -837,8 +837,8 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
                             x=self.rect.centerx,
                             y=self.rect.centery + 60,
                             frames=self.base_arrow if self.facing_right else self.base_arrow_flipped,
-                            frame_duration=5,
-                            repeat_animation=1000,
+                            frame_duration=25,
+                            repeat_animation=80,
                             speed=30 if self.facing_right else -30,
                             dmg=self.basic_attack_damage,
                             final_dmg=0,
@@ -866,7 +866,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
                                     'repeat_animation': 1,
                                     'speed': 0,
                                     'dmg': 0,
-                                    'final_dmg': self.arrow_stuck_damage,
+                                    'final_dmg': 0,
                                     'who_attacks': self,
                                     'who_attacked': self.target,
                                     'moving': False,
@@ -1508,7 +1508,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
             self.player_atk3_index_flipped = 0
             # self.y_velocity -= DEFAULT_GRAVITY  # optional: cancel gravity impulse if you want freeze in air
 
-        
+        # print(self.mana_burn_flat, self.mana_burn_per)
         super().update()
                     #self.apply_item_bonuses()
         # print(self.basic_attack_damage)

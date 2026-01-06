@@ -800,11 +800,14 @@ class Attack_Display(pygame.sprite.Sprite): #The Attack_Display class should han
             if crit_roll < self.who_attacks.crit_chance:
                 damage_amount += damage_amount * self.who_attacks.crit_damage
 
-        if self.who_attacks.mana_burn_flat[0] > 0 and self.is_basic_attack: # burns mana at provided amount 
-            enemy.take_mana_burn(enemy, self.who_attacks.mana_burn_flat[0], self.who_attacks.mana_burn_flat[1])
-
-        if self.who_attacks.mana_burn_per[0] > 0 and self.is_basic_attack: # burns mana based on percentage of damage dealt (ex. dmg 5 -> 50% - 2.5 burn mana)
-            enemy.take_mana_burn(enemy, damage_amount * self.who_attacks.mana_burn_per[0], self.who_attacks.mana_burn_per[1])
+        if self.is_basic_attack:
+            # print('BURNED', damage_amount)
+            if damage_amount > 0: # bug fix: only burn if damage > 0
+                if self.who_attacks.mana_burn_flat[0] > 0: # burns mana at provided amount 
+                        enemy.take_mana_burn(enemy, self.who_attacks.mana_burn_flat[0], self.who_attacks.mana_burn_flat[1])
+                
+                if self.who_attacks.mana_burn_per[0] > 0: # burns mana based on percentage of damage dealt (ex. dmg 5 -> 50% - 2.5 burn mana)
+                    enemy.take_mana_burn(enemy, damage_amount * self.who_attacks.mana_burn_per[0], self.who_attacks.mana_burn_per[1])
         
         enemy.take_damage(
             damage_amount,
@@ -1583,8 +1586,6 @@ class Item:
 
         # Attack display properties
         if attack_frames is not None: # load frames if provided
-            print(attack_count)
-            print(frame_type, 'asd')
             if attack_count == "immortality_count": # THERES NO OTHER WAY :(
                 attack_count = (5, 10)
             elif attack_count == "temp_hp_count":
@@ -3119,12 +3120,6 @@ def player_selection():
                                 if global_vars.toggle_hero3:
                                     hero3.items.append(item.get_associated())
 
-
-
-
-                    if global_vars.SINGLE_MODE_ACTIVE:
-                        if global_vars.toggle_hero3:
-                            hero3.apply_item_bonuses()
 
                     hero1_group = pygame.sprite.Group()
                     # hero1_group.add(hero3)

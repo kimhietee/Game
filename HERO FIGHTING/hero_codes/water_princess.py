@@ -835,6 +835,8 @@ class Water_Princess(Player):
                                 moving=True,
                                 hitbox_scale_x=i[4][2],
                                 hitbox_scale_y=i[4][3]
+                                ,
+                                is_basic_attack=True
                                 )
                             attack_display.add(attack)
                         self.mana -= 0
@@ -1195,6 +1197,8 @@ class Water_Princess(Player):
                                 hitbox_scale_x=i[4][2],
                                 hitbox_scale_y=i[4][3],
                                 stop_movement=i[6]
+                                ,
+                                is_basic_attack=True
                                 )
                             attack_display.add(attack)
                         self.mana -= 0

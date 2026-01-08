@@ -2367,6 +2367,10 @@ class Player(pygame.sprite.Sprite):
     def is_in_basic_mode(self):
         '''Return True if not special active.'''
         return not self.special_active
+    
+    def is_in_special_mode(self):
+        '''Return True if special active.'''
+        return self.special_active
 
     def is_slowed(self):
         '''return true if slowed'''

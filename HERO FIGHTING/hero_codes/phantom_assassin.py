@@ -29,23 +29,13 @@ from global_vars import (
 class Phantom_Assassin(Player):
     def __init__(self, player_type, enemy):
         super().__init__(player_type, enemy)
-
-        # Character Spritesheet with column and row
-        # attack 1 - assets\characters\Phantom Assassin\Attack1.png 6 1
-        # attack 2 - assets\characters\Phantom Assassin\Attack2.png 6 1
-        # death - assets\characters\Phantom Assassin\Death.png 6 1
-        # idle - assets\characters\Phantom Assassin\Idle.png 8 1
-        # run - assets\characters\Phantom Assassin\Run.png 8 1
-        # jump and fall (combine) - assets\characters\Phantom Assassin\Jump.png 2 1, assets\characters\Phantom Assassin\Fall.png 2 1
-
         # ----- Core -----
         self.player_type = player_type
         self.name = "Phantom Assasin"
-        self.hitbox_rect = pygame.Rect(0, 0, 50, 100)
+        self.hitbox_rect = pygame.Rect(0, 0, 45, 90)
         self.x = 50
         self.y = 50
         self.width = 200
-
         self.y_visual_offset = 108
 
         self.char_size = 1.4
@@ -58,9 +48,9 @@ class Phantom_Assassin(Player):
 
         self.base_health_regen = 0.8
         self.base_mana_regen = 5.3
-        self.base_attack_damage = 0.1
+        self.base_attack_damage = 0.3
 
-        self.base_attack_speed = 120
+        self.base_attack_speed = 110
         self.base_attack_time = 1500
         
         self.base_animation_speed = 120
@@ -173,7 +163,7 @@ class Phantom_Assassin(Player):
         # basic slash animation frames
         basic_slash = [r'assets\attacks\Basic Attack\1', BASIC_SLASH_ANIMATION, 1, BASIC_SLASH_SIZE, 0]
         self.basic_slash = self.load_img_frames_flipped_tile_method(basic_slash[0], basic_slash[1], basic_slash[2], basic_slash[3], basic_slash[4], True, False)
-        self.basic_slash_flipped = self.load_img_frames_flipped_tile_method(basic_slash[0], basic_slash[1], basic_slash[2], basic_slash[3], basic_slash[4], True, False)
+        self.basic_slash_flipped = self.load_img_frames_flipped_tile_method(basic_slash[0], basic_slash[1], basic_slash[2], basic_slash[3], basic_slash[4], True, True)
         
         # Skill Icons Source
         default_skill_size = (ICON_WIDTH, ICON_HEIGHT) #touple type shi
@@ -479,201 +469,211 @@ class Phantom_Assassin(Player):
             return
             
         
-        if not self.is_jumping():
-            if self.is_pressing(hotkey1) and not self.is_busy_attacking():
-                if self.is_in_basic_mode():
-                    if self.is_skill_ready(self.attacks, 0):
-                        
-                        frame_duration, repeat_animation = self.skill_duration(
-                            set_mode = ('seconds', 1000),
-                            frame_count = self.attack_frames['atk1frames']
-                        )
-                        attack_display.add(Attack_Display(
-                            x=self.attack_position(self.rect, 'x', 20, True),
-                            y=self.attack_position(self.rect, 'y', 20, False),
-                            frames=self.attack_frame_count(self.atk1, self.atk1_flipped),
-                            frame_duration=frame_duration,
-                            repeat_animation=repeat_animation,
-                            speed=6 if self.facing_right else -6,
-                            dmg=self.atk1_damage[0],
-                            final_dmg=self.atk1_damage[1],
-                            who_attacks=self,
-                            who_attacked=self.enemy,
-                            moving=True,
-                            delay=(True, 800),
-                            sound=(True, self.sound1, None, None),
-
-                            hitbox_scale_x=0.4,
-                            hitbox_scale_y=0.4
-                            ))
-                        
-                        self.consume_mana(self.attacks, 0)
-                        self.reset_skill_cooldown(self.attacks, 0, current_time)
-                        self.modify_current_state(
-                            running=False, animation="attacking1",
-                            ani_index="player_atk1", ani_index_flipped="player_atk1")
-                        
-                elif self.is_in_special_mode():
-                    if self.is_skill_ready(self.mana, self.special_skill_1):
-                        pass
-
-
-
-
-
-            elif self.is_pressing(hotkey2) and not self.is_busy_attacking():
-                if self.is_in_basic_mode():
-                    if self.is_skill_ready(self.attacks, 1):
-                        
-                        frame_duration, repeat_animation = self.skill_duration(
-                            set_mode = ('seconds', 1000),
-                            frame_count = self.attack_frames['atk2frames']
-                        )
-                        attack_display.add(Attack_Display(
-                            x=self.attack_position(self.rect, 'x', 20, True),
-                            y=self.attack_position(self.rect, 'y', 20, False),
-                            frames=self.attack_frame_count(self.atk2, self.atk2_flipped),
-                            frame_duration=frame_duration,
-                            repeat_animation=repeat_animation,
-                            speed=0,
-                            dmg=self.atk2_damage[0],
-                            final_dmg=self.atk2_damage[1],
-                            who_attacks=self,
-                            who_attacked=self.enemy,
-                            moving=False,
-                            delay=(True, 800),
-                            sound=(True, self.sound2, None, None),
-
-                            hitbox_scale_x=0.4,
-                            hitbox_scale_y=0.4
-                            ))
-                        self.consume_mana(self.attacks, 1)
-                        self.reset_skill_cooldown(self.attacks, 1, current_time)
-                        self.modify_current_state(
-                            running=False, animation="attacking2",
-                            ani_index="player_atk2", ani_index_flipped="player_atk2")
-                        
-                elif self.is_in_special_mode():
-                    if self.is_skill_ready(self.mana, self.special_skill_2):
-                        pass
-
-            
-
-
-            elif self.is_pressing(hotkey3) and not self.is_busy_attacking():
-                if self.is_in_basic_mode():
-                    if self.is_skill_ready(self.attacks, 2):
-                        
-                        frame_duration, repeat_animation = self.skill_duration(
-                            set_mode = ('seconds', 1000),
-                            frame_count = self.attack_frames['atk3frames']
-                        )
-                        attack_display.add(Attack_Display(
-                            x=self.attack_position(self.rect, 'x', 20, True),
-                            y=self.attack_position(self.rect, 'y', 20, False),
-                            frames=self.attack_frame_count(self.atk3),
-                            frame_duration=frame_duration,
-                            repeat_animation=repeat_animation,
-                            speed=0,
-                            dmg=self.atk3_damage[0],
-                            final_dmg=self.atk3_damage[1],
-                            who_attacks=self,
-                            who_attacked=self.enemy,
-                            moving=False,
-                            delay=(True, 800),
-                            sound=(True, self.sound3, None, None),
-
-                            hitbox_scale_x=0.4,
-                            hitbox_scale_y=0.4
-                            ))
-                        self.consume_mana(self.attacks, 2)
-                        self.reset_skill_cooldown(self.attacks, 2, current_time)
-                        self.modify_current_state(
-                            running=False, animation="attacking3",
-                            ani_index="player_atk3", ani_index_flipped="player_atk3")
-                        
-                elif self.is_in_special_mode():
-                    if self.is_skill_ready(self.mana, self.special_skill_3):
-                        pass
-
-
-
-
-            elif self.is_pressing(hotkey4) and not self.is_busy_attacking():
-                if self.is_in_basic_mode():
-                    if self.is_skill_ready(self.attacks, 3):
-                        
-                        frame_duration, repeat_animation = self.skill_duration(
-                            set_mode = ('seconds', 1000),
-                            frame_count = self.attack_frames['atk4frames'],
-                            repeat_animation=1
-                        )
-                        attack_display.add(Attack_Display(
-                            x=self.attack_position(self.rect, 'x', 20, True),
-                            y=self.attack_position(self.rect, 'y', 20, False),
-                            frames=self.attack_frame_count(self.atk4),
-                            frame_duration=frame_duration,
-                            repeat_animation=repeat_animation,
-                            speed=0,
-                            dmg=self.sp_damage[0],
-                            final_dmg=self.sp_damage[1],
-                            who_attacks=self,
-                            who_attacked=self.enemy,
-                            moving=False,
-                            delay=(True, 800),
-                            sound=(True, self.sound4, None, None),
     
-                            hitbox_scale_x=0.4,
-                            hitbox_scale_y=0.4
-                            ))
-                        self.consume_mana(self.attacks, 3)
-                        self.reset_skill_cooldown(self.attacks, 3, current_time)
-                        self.modify_current_state(
-                            running=False, animation="sp_attacking",
-                            ani_index="player_sp", ani_index_flipped="player_sp")
-                        
-                elif self.is_in_special_mode():
-                    if self.is_skill_ready(self.mana, self.special_skill_4):
-                        pass
+        if self.is_pressing(hotkey1) and not self.is_busy_attacking():
+            if self.is_in_basic_mode() and not self.is_jumping():
+                if self.is_skill_ready(self.attacks, 0):
+                    
+                    frame_duration, repeat_animation = self.skill_duration(
+                        set_mode = ('seconds', 1000),
+                        frame_count = self.attack_frames['atk1frames'],
+                        repeat_animation=1,
+                        frame_divisor=1,
+                        set_max_frame_duration=100
+                    )
+                    attack_display.add(Attack_Display(
+                        x=self.attack_position(self.rect, 'x', 20, True),
+                        y=self.attack_position(self.rect, 'y', 20, False),
+                        frames=self.attack_frame_count(self.atk1, self.atk1_flipped),
+                        frame_duration=frame_duration,
+                        repeat_animation=repeat_animation,
+                        speed=6 if self.facing_right else -6,
+                        dmg=self.atk1_damage[0],
+                        final_dmg=self.atk1_damage[1],
+                        who_attacks=self,
+                        who_attacked=self.enemy,
+                        moving=True,
+                        delay=(True, 800),
+                        sound=(True, self.sound1, None, None),
 
-            
-            elif self.is_pressing(basic_hotkey) and not self.is_busy_attacking():
-                if self.is_in_basic_mode():
-                    if self.can_basic_attack():
-                        
-                        attack_display.add(Attack_Display(
-                            x=self.attack_position(self.rect, 'x', 85, True),
-                            y=self.attack_position(self.rect, 'y', -35, False),
-                            frames=self.attack_frame_count(self.basic_slash, self.basic_slash_flipped),
-                            frame_duration=BASIC_FRAME_DURATION,
-                            repeat_animation=1,
-                            speed=0,
-                            dmg=self.basic_attack_damage,
-                            final_dmg=0,
-                            who_attacks=self,
-                            who_attacked=self.enemy,
-                            moving=True,
-                            delay=(True, self.calculate_attack_delay(500)),
-                            sound=(True, self.basic_sound, None, None),
-    
-                            hitbox_scale_x=0.7,
-                            hitbox_scale_y=0.4,
-                            hitbox_offset_x=-30 if self.facing_right else 30,
+                        hitbox_scale_x=0.4,
+                        hitbox_scale_y=0.4
+                        ))
+                    
+                    self.consume_mana(self.attacks, 0)
+                    self.reset_skill_cooldown(self.attacks, 0, current_time)
+                    self.modify_current_state(
+                        running=False, animation="attacking1",
+                        ani_index="player_atk1", ani_index_flipped="player_atk1")
+                    
+            elif self.is_in_special_mode() and not self.is_jumping():
+                if self.is_skill_ready(self.mana, self.special_skill_1):
+                    pass
 
-                            is_basic_attack=True
-                            ))
-                        self.consume_mana(self.attacks, 4)
-                        self.reset_skill_cooldown(self.attacks, 4, current_time)
-                        self.modify_current_state(
-                            running=False, animation="basic_attacking",
-                            ani_index="player_basic", ani_index_flipped="player_basic")
-                            
+
+
+
+
+        elif self.is_pressing(hotkey2) and not self.is_busy_attacking():
+            if self.is_in_basic_mode() and not self.is_jumping():
+                if self.is_skill_ready(self.attacks, 1):
+                    
+                    frame_duration, repeat_animation = self.skill_duration(
+                        set_mode = ('seconds', 1000),
+                        frame_count = self.attack_frames['atk2frames'],
+                        repeat_animation=1,
+                        frame_divisor=1,
+                        set_max_frame_duration=100
+                    )
+                    attack_display.add(Attack_Display(
+                        x=self.attack_position(self.rect, 'x', 20, True),
+                        y=self.attack_position(self.rect, 'y', 20, False),
+                        frames=self.attack_frame_count(self.atk2, self.atk2_flipped),
+                        frame_duration=frame_duration,
+                        repeat_animation=repeat_animation,
+                        speed=0,
+                        dmg=self.atk2_damage[0],
+                        final_dmg=self.atk2_damage[1],
+                        who_attacks=self,
+                        who_attacked=self.enemy,
+                        moving=False,
+                        delay=(True, 800),
+                        sound=(True, self.sound2, None, None),
+
+                        hitbox_scale_x=0.4,
+                        hitbox_scale_y=0.4
+                        ))
+                    self.consume_mana(self.attacks, 1)
+                    self.reset_skill_cooldown(self.attacks, 1, current_time)
+                    self.modify_current_state(
+                        running=False, animation="attacking2",
+                        ani_index="player_atk2", ani_index_flipped="player_atk2")
+                    
+            elif self.is_in_special_mode() and not self.is_jumping():
+                if self.is_skill_ready(self.mana, self.special_skill_2):
+                    pass
+
+        
+
+
+        elif self.is_pressing(hotkey3) and not self.is_busy_attacking():
+            if self.is_in_basic_mode() and not self.is_jumping():
+                if self.is_skill_ready(self.attacks, 2):
+                    
+                    frame_duration, repeat_animation = self.skill_duration(
+                        set_mode = ('seconds', 1000),
+                        frame_count = self.attack_frames['atk3frames'],
+                        repeat_animation=1,
+                        frame_divisor=1,
+                        set_max_frame_duration=100
+                    )
+                    attack_display.add(Attack_Display(
+                        x=self.attack_position(self.rect, 'x', 20, True),
+                        y=self.attack_position(self.rect, 'y', 20, False),
+                        frames=self.attack_frame_count(self.atk3),
+                        frame_duration=frame_duration,
+                        repeat_animation=repeat_animation,
+                        speed=0,
+                        dmg=self.atk3_damage[0],
+                        final_dmg=self.atk3_damage[1],
+                        who_attacks=self,
+                        who_attacked=self.enemy,
+                        moving=False,
+                        delay=(True, 800),
+                        sound=(True, self.sound3, None, None),
+
+                        hitbox_scale_x=0.4,
+                        hitbox_scale_y=0.4
+                        ))
+                    self.consume_mana(self.attacks, 2)
+                    self.reset_skill_cooldown(self.attacks, 2, current_time)
+                    self.modify_current_state(
+                        running=False, animation="attacking3",
+                        ani_index="player_atk3", ani_index_flipped="player_atk3")
+                    
+            elif self.is_in_special_mode() and not self.is_jumping():
+                if self.is_skill_ready(self.mana, self.special_skill_3):
+                    pass
+
+
+
+
+        elif self.is_pressing(hotkey4) and not self.is_busy_attacking():
+            if self.is_in_basic_mode() and not self.is_jumping():
+                if self.is_skill_ready(self.attacks, 3):
+                    
+                    frame_duration, repeat_animation = self.skill_duration(
+                        set_mode = ('seconds', 1000),
+                        frame_count = self.attack_frames['atk4frames'],
+                        repeat_animation=1,
+                        frame_divisor=1,
+                        set_max_frame_duration=100
+                    )
+                    attack_display.add(Attack_Display(
+                        x=self.attack_position(self.rect, 'x', 20, True),
+                        y=self.attack_position(self.rect, 'y', 20, False),
+                        frames=self.attack_frame_count(self.atk4),
+                        frame_duration=frame_duration,
+                        repeat_animation=repeat_animation,
+                        speed=0,
+                        dmg=self.sp_damage[0],
+                        final_dmg=self.sp_damage[1],
+                        who_attacks=self,
+                        who_attacked=self.enemy,
+                        moving=False,
+                        delay=(True, 800),
+                        sound=(True, self.sound4, None, None),
+
+                        hitbox_scale_x=0.4,
+                        hitbox_scale_y=0.4
+                        ))
+                    self.consume_mana(self.attacks, 3)
+                    self.reset_skill_cooldown(self.attacks, 3, current_time)
+                    self.modify_current_state(
+                        running=False, animation="sp_attacking",
+                        ani_index="player_sp", ani_index_flipped="player_sp")
+                    
+            elif self.is_in_special_mode() and not self.is_jumping():
+                if self.is_skill_ready(self.mana, self.special_skill_4):
+                    pass
+
+        
+        elif self.is_pressing(basic_hotkey) and not self.is_busy_attacking():
+            if self.is_in_basic_mode() and not self.is_jumping():
+                if self.can_basic_attack():
+                    
+                    attack_display.add(Attack_Display(
+                        x=self.attack_position(self.rect, 'x', 85, True),
+                        y=self.attack_position(self.rect, 'y', -35, False),
+                        frames=self.attack_frame_count(self.basic_slash, self.basic_slash_flipped),
+                        frame_duration=BASIC_FRAME_DURATION,
+                        repeat_animation=1,
+                        speed=0,
+                        dmg=self.basic_attack_damage,
+                        final_dmg=0,
+                        who_attacks=self,
+                        who_attacked=self.enemy,
+                        moving=True,
+                        delay=(True, self.calculate_attack_delay(500)),
+                        sound=(True, self.basic_sound, None, None),
+
+                        hitbox_scale_x=0.7,
+                        hitbox_scale_y=0.4,
+
+                        is_basic_attack=True
+                        ))
+                    self.consume_mana(self.attacks, 4)
+                    self.reset_skill_cooldown(self.attacks, 4, current_time)
+                    self.modify_current_state(
+                        running=False, animation="basic_attacking",
+                        ani_index="player_basic", ani_index_flipped="player_basic")
                         
-                        self.modify_attack_state(current_time, 'basic')
-                        
-                elif self.is_in_special_mode():
-                    if self.is_skill_ready(self.mana, self.special_skill_4):
-                        pass
+                    
+                    self.modify_attack_state(current_time, 'basic')
+                    
+            elif self.is_in_special_mode() and not self.is_jumping():
+                if self.is_skill_ready(self.mana, self.special_skill_4):
+                    pass
 
 
     def update(self):
@@ -716,22 +716,14 @@ class Phantom_Assassin(Player):
             self.run_animation(self.running_animation_speed)
         elif self.attacking1:
             self.atk1_animation()
-            # print(self.player_atk1_index, 'basic attack index')
-
         elif self.attacking2:
             self.atk2_animation()
         elif self.attacking3:
-            pass
             self.atk3_animation()
         elif self.sp_attacking:
-            pass
             self.sp_animation()
         elif self.basic_attacking:
-        #     pass
-            # print(self.basic_attacking, 'basic attacking')
-            # print(self.player_atk1_index, 'basic attack index')
             self.basic_animation()
-            # self.atk1_animation()
         else:
             self.simple_idle_animation(RUNNING_ANIMATION_SPEED)
 

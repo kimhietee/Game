@@ -114,6 +114,8 @@ class Player(pygame.sprite.Sprite):
         self.silenced = False
         self.mana_burn_per = [0, 0] # [0] = mana burned, [1] = mana to damage
         self.mana_burn_flat = [0, 0] # [0] = mana burned, [1] = mana to damage
+        self.health_cost = 0
+        self.spell_lifesteal = 0
         
         self.max_temp_hp = 0
         self.temp_hp = self.max_temp_hp
@@ -700,61 +702,6 @@ class Player(pygame.sprite.Sprite):
                 elif typ == "mana_burn_flat_dmg_per":
                     self.mana_burn_flat[1] = val
 
-                    # Flat attack speed: Reduce anim speed (faster anim = faster atk)
-                    # Scale: 100 flat = -10 anim speed (arbitrary, from your old 0.1 * val)
-                    # self.basic_attack_animation_speed -= val * 0.1 #removed 0.1 (therefore val is 15)
-                    
-                    # Cooldown: 100 flat = -500ms (assuming ms; 100 flat = full base reduction if base=500)
-                    # self.basic_attack_cooldown -= val * 5
-                    # self.basic_attack_cooldown += ((self.basic_attack_cooldown-240) - (self.basic_attack_cooldown-240) - val)  # Adjust scalar if base
-                    
-
-                    # fire wizard stats:
-                    # base attack time: 1.2s
-                    # attack speed: 120
-
-                    # atks per second = (100 + total atk speed) / base attack time
-                    # seconds per atk = base attack time / (1 + total atk speed / 100)
-
-                    #ex. + 100 atk speed, how much is the total?
-                    # ___________ attack speed, ________ attk stime
-
-
-
-
-
-                    # BASIC_ATTACK_COOLDOWN DEFAUT : 500 
-                    
-                    # 120 - (150 * 0.1) = 105
-                    # total = 1,050 = 1.05 seconds
-                    # 120 - 20
-                    
-                    #rules:
-                    # attack speed must not go >  +140
-                    # or below 20 
-
-                    #ex. 600 atk speed = 0.24 second attack cooldown
-                    
-                    #cooldown threshold max(240, min(600, atkspeed?))
-                    #260 maximum minus, 100 maximum addition
-
-                    #500 - (240)  += (260 - val) 
-
-                    #                                      base attack speed           base attack rate (each hero)
-                    #hero 1 basic attack = 2seconds             100 + 20 = 120          0.95 second (950)
-                    #hero 2 bascic attack = 1.5 seconds         90 + 15                 0.75 second (750)
-                    #hero 3 basic attack = 3.2 seconds          120 + 15                0.5 second (500)
-
-
-
-                    # item_1 = +50 attack speed
-                    # hero_1 items = item_1. Total attack speed = base + bonus = 100+50 = 150, attack rate = 1.0 second - 
-
-                    #(percentage % and flat bonuses)
-                    #100% attack speed 100 -> 200       
-                    
-                    # add +20 attack speed
-
             # Abilities
             if typ == "extra_temp_hp":
                 # print('addeddd')
@@ -820,6 +767,8 @@ class Player(pygame.sprite.Sprite):
                 elif typ == "mana_burn_per_dmg":
                     self.mana_burn_per[1] = val
 
+                
+
 
                     # Percentage: Reduce anim speed and cd by %
                     # self.basic_attack_animation_speed *= (1 - val)  # Lower = faster
@@ -836,9 +785,9 @@ class Player(pygame.sprite.Sprite):
                         self.attacks_special[i].cooldown = int(self.attacks_special[i].cooldown * (1 - val))
                 # CENTRALIZED BONUSES BEFORE APPLYING
                 elif typ == "lifesteal_per":
-                    self.lifesteal += val # must be higher than 1
+                    self.lifesteal += val # must be higher than 1 or else damages self
                 elif typ == "health_cost_per":
-                    self.lifesteal += val  # Penalty as negative lifesteal # value must be less than 1
+                    self.health_cost += val  # Health penalty
                 elif typ == "dmg_reduce_per":
                     self.damage_reduce += val
                 elif typ == "sp_increase_per":
@@ -856,6 +805,9 @@ class Player(pygame.sprite.Sprite):
                     self.mana_regen *= (1 + val)
                 elif typ == "hp_regen_per":
                     self.health_regen *= (1 + val)
+
+                elif typ == "spell_lifesteal_per":
+                    self.spell_lifesteal += val
                 
                 # For spell damage vvv -----------------------------------------------------
                 elif typ == "spell_dmg_per":
@@ -1084,6 +1036,57 @@ class Player(pygame.sprite.Sprite):
 
     '''
 
+    def load_sound(self, path, max_volume=1.0):
+        sound = pygame.mixer.Sound(path)
+        sound.set_volume(max_volume * global_vars.MAIN_VOLUME) 
+        return sound
+    
+    def load_img_scaled(self, path, size=75):
+        image = pygame.image.load(path).convert_alpha()
+        image = pygame.transform.scale(image, size)
+        return image
+    
+    def setup_skill_icon_rects(self, skill_icons:list, special_icon, special_skill_icons:list, x_pos_spacing, start_offset_x, spacing_x, skill_y_offset, default_x_pos):
+        # # Player Icon Rects
+        # if self.player_type == 1:
+        #     self.skill_1_rect = skill_1.get_rect(center=(X_POS_SPACING + START_OFFSET_X, SKILL_Y_OFFSET))
+        #     self.skill_2_rect = skill_2.get_rect(center=(X_POS_SPACING + START_OFFSET_X + SPACING_X, SKILL_Y_OFFSET))
+        #     self.skill_3_rect = skill_3.get_rect(center=(X_POS_SPACING + START_OFFSET_X + SPACING_X * 2, SKILL_Y_OFFSET))
+        #     self.skill_4_rect = skill_4.get_rect(center=(X_POS_SPACING + START_OFFSET_X + SPACING_X * 3, SKILL_Y_OFFSET))
+
+        #     self.special_rect = special_icon.get_rect(center=(X_POS_SPACING + START_OFFSET_X + SPACING_X * 4 + 50, SKILL_Y_OFFSET))
+
+        #     self.special_skill_1_rect = special_skill_1.get_rect(center=(X_POS_SPACING + START_OFFSET_X, SKILL_Y_OFFSET))
+        #     self.special_skill_2_rect = special_skill_2.get_rect(center=(X_POS_SPACING + START_OFFSET_X + SPACING_X, SKILL_Y_OFFSET))
+        #     self.special_skill_3_rect = special_skill_3.get_rect(center=(X_POS_SPACING + START_OFFSET_X + SPACING_X * 2, SKILL_Y_OFFSET))
+        #     self.special_skill_4_rect = special_skill_4.get_rect(center=(X_POS_SPACING + START_OFFSET_X + SPACING_X * 3, SKILL_Y_OFFSET))
+
+        # elif self.player_type == 2:
+        #     self.special_rect = special_icon.get_rect(center=(DEFAULT_X_POS - START_OFFSET_X - SPACING_X * 4 - 50, SKILL_Y_OFFSET))
+
+        #     self.special_skill_1_rect = special_skill_1.get_rect(center=(DEFAULT_X_POS - START_OFFSET_X - SPACING_X * 3, SKILL_Y_OFFSET))
+        #     self.special_skill_2_rect = special_skill_2.get_rect(center=(DEFAULT_X_POS - START_OFFSET_X - SPACING_X * 2, SKILL_Y_OFFSET))
+        #     self.special_skill_3_rect = special_skill_3.get_rect(center=(DEFAULT_X_POS - START_OFFSET_X - SPACING_X, SKILL_Y_OFFSET))
+        #     self.special_skill_4_rect = special_skill_4.get_rect(center=(DEFAULT_X_POS - START_OFFSET_X, SKILL_Y_OFFSET))
+
+        #     self.skill_1_rect = skill_1.get_rect(center=(DEFAULT_X_POS - START_OFFSET_X - SPACING_X * 3, SKILL_Y_OFFSET))
+        #     self.skill_2_rect = skill_2.get_rect(center=(DEFAULT_X_POS - START_OFFSET_X - SPACING_X * 2, SKILL_Y_OFFSET))
+        #     self.skill_3_rect = skill_3.get_rect(center=(DEFAULT_X_POS - START_OFFSET_X - SPACING_X, SKILL_Y_OFFSET))
+        #     self.skill_4_rect = skill_4.get_rect(center=(DEFAULT_X_POS - START_OFFSET_X, SKILL_Y_OFFSET))
+        if self.player_type == 1:
+            for i, icon in enumerate(skill_icons):
+                setattr(self, f'skill_{i+1}_rect', icon.get_rect(center=(x_pos_spacing + start_offset_x + spacing_x * i, skill_y_offset)))
+            self.special_rect = special_icon.get_rect(center=(x_pos_spacing + start_offset_x + spacing_x * 4 + 50, skill_y_offset))
+            for i, icon in enumerate(special_skill_icons):
+                setattr(self, f'special_skill_{i+1}_rect', icon.get_rect(center=(x_pos_spacing + start_offset_x + spacing_x * i, skill_y_offset)))
+        elif self.player_type == 2:
+            self.special_rect = special_icon.get_rect(center=(default_x_pos - start_offset_x - spacing_x * 4 - 50, skill_y_offset))
+            for i, icon in enumerate(special_skill_icons):
+                setattr(self, f'special_skill_{i+1}_rect', icon.get_rect(center=(default_x_pos - start_offset_x - spacing_x * (i + 1), skill_y_offset)))
+            for i, icon in enumerate(skill_icons):
+                setattr(self, f'skill_{i+1}_rect', icon.get_rect(center=(default_x_pos - start_offset_x - spacing_x * (i + 1), skill_y_offset)))
+
+
 
     def load_img_frames_v2(self, folder:str, count:int | tuple, starts_at_zero=False, size=1, typ='frames', flipped=False, rotate=0):
         ''' Can be used as loading attack frames and loading a spritesheet, provided that count is tuple
@@ -1093,7 +1096,7 @@ class Player(pygame.sprite.Sprite):
                 if spritesheet, provide the spritesheet path (typ != 'frames')
         - count: int if typ == 'frames' (frame count)
 
-                tuple if typ == 'spritesheet' (column, rows)
+                tuple if typ == 'spritesheet' (ROWS, COLUMNS)
         '''
         if typ == "frames":
             images = []
@@ -1109,15 +1112,15 @@ class Player(pygame.sprite.Sprite):
             if not flipped: # normal
                 return load_attack(
                     filepath=folder,
-                    columns=count[0], 
-                    rows=count[1], 
+                    rows=count[0], 
+                    columns=count[1], 
                     scale=size, 
                     rotation=rotate)
             else:
                 return load_attack_flipped(
                     filepath=folder,
-                    columns=count[0], 
-                    rows=count[1], 
+                    rows=count[0],
+                    columns=count[1],
                     scale=size, 
                     rotation=rotate)
             
@@ -1225,7 +1228,7 @@ class Player(pygame.sprite.Sprite):
                 break
         return images
     
-    def load_img_frames_flipped_tile_method(self, folder, count, starts_at_zero=False, size=1):
+    def load_img_frames_flipped_tile_method(self, folder, count, starts_at_zero=False, size=1, angle=0, flip_y=False, flip_x=True):
         '''
         assets\attacks\fire wizard\atk1\tile000.png
         assets\attacks\fire wizard\atk1\tile001.png
@@ -1236,8 +1239,8 @@ class Player(pygame.sprite.Sprite):
             frame_number = i + (0 if starts_at_zero else 1)
             img_path = fr"{folder}\tile{frame_number:03d}.png"  # Zero-pad to 4 digits
             try:
-                image = pygame.transform.flip(pygame.image.load(img_path).convert_alpha(), True, False)
-                image = pygame.transform.rotozoom(image, 0, size)
+                image = pygame.transform.flip(pygame.image.load(img_path).convert_alpha(), flip_x, flip_y)
+                image = pygame.transform.rotozoom(image, angle, size)
                 images.append(image)
             except FileNotFoundError:
                 print(f"File not found: {img_path}")
@@ -2356,6 +2359,14 @@ class Player(pygame.sprite.Sprite):
     def is_not_attacking(self):
         """Returns True if the player is not performing any skill or attack."""
         return not self.is_busy_attacking()
+    
+    def is_pressing(self, hotkey):
+        '''Returns True if hotkey provided is pressed'''
+        return hotkey
+
+    def is_in_basic_mode(self):
+        '''Return True if not special active.'''
+        return not self.special_active
 
     def is_slowed(self):
         '''return true if slowed'''
@@ -2418,9 +2429,9 @@ class Player(pygame.sprite.Sprite):
         """Returns True if the player is in special mode."""
         return self.special_active
 
-    def is_jumping_or_dead(self):
-        """Returns True if player is jumping or dead."""
-        return self.jumping or self.is_dead()
+    def is_jumping(self):
+        """Returns True if player is jumping."""
+        return self.jumping
 
     def is_moving(self) -> bool:
         """Returns True if player is currently moving horizontally."""
@@ -2440,7 +2451,7 @@ class Player(pygame.sprite.Sprite):
         \nWhen only default is provided, always returns the default value. \n\nAccepts a list of attack frames.
         - default = surface list
         - flipped (optiona = flipped surface list"""
-        return default if self.facing_right else flipped if flipped is not None else None
+        return default if self.facing_right else flipped if flipped is not None else default
         
     def attack_position(self, target:object, axis:str='x', offset:int=0, require_facing:bool=False, positioning:str='centerx') -> int:
         """Returns x/y coordinate based on the target and offset starting from player.
@@ -2475,14 +2486,79 @@ class Player(pygame.sprite.Sprite):
         return final_position
     
     def is_skill_ready(self, attack_mode, skill):
-        '''if self.mana >= self.attacks[0].mana_cost and self.attacks[0].is_ready():'''
-        attack_mana_cost = {}
-        for num, val in enumerate(attack_mode):
-            attack_mana_cost[num] = val.mana_cost
-        # print(attack_mana_cost)
-        return self.mana >= attack_mana_cost[skill] and attack_mode[skill].is_ready()
+        '''Check if skill is ready and have enough mana to use.
 
+        Guide:
+            0 - skill 1
+            1 - skill 2
+            2 - skill 3
+            3 - skill 4
+            4 - basic attack
+            5 - activate special (basic mode only)'''
+        return self.mana >= attack_mode[skill].mana_cost and attack_mode[skill].is_ready()
+
+    def consume_mana(self, attack_mode, skill):
+        '''Consumes mana when skill is used.
+
+        Guide:
+            0 - skill 1
+            1 - skill 2
+            2 - skill 3
+            3 - skill 4
+            4 - basic attack
+            5 - activate special (basic mode only)'''
+        self.mana -= attack_mode[skill].mana_cost
         
+    def reset_skill_cooldown(self, attack_mode, skill, current_time):
+        '''Sets the skill cooldown.
+
+        Guide:
+            0 - skill 1
+            1 - skill 2
+            2 - skill 3
+            3 - skill 4
+            4 - basic attack
+            5 - activate special (basic mode only)'''
+        attack_mode[skill].last_used_time = current_time
+
+    def modify_current_state(self, running:bool, animation:str, ani_index:str, ani_index_flipped:str=None):
+        '''Sets current state to whats provided.
+
+        if ani_index_flipped is provided, it will also reset the flipped version
+        if not provided, only resets the default animation
+        
+        Guide:
+            running (bool): False if stop player from running when attacking.
+            animation (str): name of the attacking state, sets animation state to True.
+            player_index & player_index_flipped: set the provided index to 0
+
+        '''
+        # resets animation flags
+        self.running = running
+        setattr(self, animation, True)
+
+        setattr(self, ani_index + "_index", 0)
+        # also set the flipping to 0 if animation has flipped version
+        if ani_index_flipped is not None:
+            setattr(self, ani_index_flipped + "_index_flipped", 0)
+
+    def calculate_attack_delay(self, delay):
+        return self.basic_attack_animation_speed * (delay / self.base_animation_speed)
+    
+    
+    def modify_attack_state(self, current_time, type='basic'):
+        '''modify basic attacking state
+        
+        type: 
+            'basic'
+                - set basic attacking to True, and set the attack cooldown
+            'simple'
+                - set basic attacking to True only, used for skills that use basic animation speed'''
+        self.basic_attacking = True
+        if type == 'simple':
+            return
+        self.last_basic_attack_time = current_time
+
     def skill_duration(
         self,
         set_mode: tuple[str, int | float],
@@ -2841,8 +2917,8 @@ class Player(pygame.sprite.Sprite):
         if global_vars.DRAW_DISTANCE:
             self.draw_distance(self.enemy)
         if global_vars.SHOW_HITBOX:
-            
-            self.draw_hitbox(screen)
+            if not self.__class__.__name__ in global_vars.HITBOX_EXCLUDE_LIST:
+                self.draw_hitbox(screen)
 
         
         # -----------------------------

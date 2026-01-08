@@ -32,7 +32,7 @@ gold = 'Gold' #special
 # 'blue'
 # 'yellow'
 
-IMMEDIATE_RUN = False
+IMMEDIATE_RUN = True
 
 HERO1_BOT = False
 all_items = False #equip bot with all items
@@ -62,6 +62,8 @@ MUTE = False # constant
 SHOW_HITBOX = hitboxanddistance
 DRAW_DISTANCE = hitboxanddistance
 SHOW_GRID = False
+
+HITBOX_EXCLUDE_LIST = ["Phantom_Assassin"]
 
 # Pause tracking (used so UI/cooldowns stop while game is paused)
 PAUSED = False

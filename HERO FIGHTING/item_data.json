@@ -1,20 +1,11 @@
 {
   "items": [
     {
-      "name": "Last Breath",
-      "image_path": "assets/item icons/new items/2 Icons with back/Icons_04.png",
-      "bonus_type": ["heal_when_low", "all_stats_flat"],
-      "bonus_value": [1.0, 1],
-      "description": "When health falls below 10%, instantly@restores health equal to Strength.@@Cooldown: 120s",
-      "cooldown": 120,
-      "attack_frames": "assets/attacks_item/Last Breath/image_",
-      "attack_count": 8,
-      "attack_frame_duration": 125,
-      "attack_repeat": 5,
-      "starts_at_zero": true,
-      "size": 2,
-      "sound_path": "pass muna bro",
-      "frame_type": "frames"
+      "name": "Curse of Warlord",
+      "image_path": "assets/item icons/new items/2 Icons with back/Icons_15.png",
+      "bonus_type": ["dmg_return_per"],
+      "bonus_value": [0.2],
+      "description": "Returns 20% of damage taken to attacker."
     },
     {
       "name": "War Helmet",
@@ -33,15 +24,15 @@
       "name": "Undead Marrow",
       "image_path": "assets/item icons/new items/2 Icons with back/Icons_40.png",
       "bonus_type": ["lifesteal_per"],
-      "bonus_value": [0.15],
-      "description": "Heals the attacker for 15% damage dealt to enemy."
+      "bonus_value": [0.3],
+      "description": "Heals the attacker for 30% of the@attack damage dealt to enemy."
 
     },
     {
-      "name": "Spoon",
-      "image_path": "assets/item icons/new items/2 Icons with back/Icons_19.png",
-      "bonus_type": ["hp_flat", "mana_flat", "agi_flat", "cd_reduce_per"],
-      "bonus_value": [30.0, -30.0, 5.0, 0.05]
+      "name": "Enchanted Bracelet",
+      "image_path": "assets/item icons/new items/2 Icons with back/Icons_39.png",
+      "bonus_type": ["spell_lifesteal_per"],
+      "bonus_value": [0.18]
     },
     {
       "name": "Vitality Booster",
@@ -59,12 +50,13 @@
 
 
 
+
     {
-      "name": "Unwavering Banner",
-      "image_path": "assets/item icons/2 Icons with back/Icons_05.png",
-      "bonus_type": ["extra_temp_hp", "hp_flat"],
-      "bonus_value": [40.0, 10.0],
-      "description": "Grants 40 temporary HP that absorbs@damage before affecting real health."
+      "name": "Cheese",
+      "image_path": "assets/item icons/2 Icons with back/Icons_12.png",
+      "bonus_type": ["sp_increase_per"],
+      "bonus_value": [0.5],
+      "description": "Special meter fills 50% faster."
     },
     {
       "name": "Crimson Hearthstone",
@@ -76,9 +68,9 @@
     {
       "name": "Azure Myststone",
       "image_path": "assets/item icons/gems/Icons_11.png",
-      "bonus_type": ["mana_flat", "spell_dmg_per", "mana_regen_per"],
+      "bonus_type": ["mana_flat", "spell_lifesteal_per", "mana_regen_per"],
       "bonus_value": [25.0, 0.05, 0.05],
-      "description": "Increased max mana and regen and increased@skill damage output."
+      "description": "Increased max mana and regen and heals the@attacker based on the spell damage dealt."
 
     },
     {
@@ -114,20 +106,11 @@
 
 
     {
-      "name": "Ancient Elixir",
-      "image_path": "assets/item icons/2 Icons with back/Icons_35.png",
-      "bonus_type": ["immortality"],
-      "bonus_value": [1],
-      "description": "When taking damage that can kill the hero, becomes@immune to all damage for 7 seconds. Health is@reduced to 1 if activated.@@Cooldown: 240s",
-      "cooldown": 240,
-      "attack_frames": "assets\\attacks_item\\Immortality Elixir\\activation_frames.PNG",
-      "attack_count": "immortality_count",
-      "attack_frame_duration": 70,
-      "attack_repeat": 2,
-      "starts_at_zero": true,
-      "size": 0.7,
-      "sound_path": "pass muna bro",
-      "frame_type": "spritesheet"
+      "name": "Mana Leech",
+      "image_path": "assets/item icons/new items/2 Icons with back/Icons_21.png",
+      "bonus_type": ["mana_burn_flat", "mana_burn_flat_dmg_per"],
+      "bonus_value": [5, 0.15],
+      "description": "Burns 5 mana for every attack dealt to enemy.@Additionally, deals 15% of burned mana as damage."
     },
     {
       "name": "Crimson Crystal",
@@ -157,8 +140,8 @@
       "name": "Corrupted Booster",
       "image_path": "assets/item icons/new items/2 Icons with back/Icons_35.png",
       "bonus_type": ["health_cost_per", "spell_dmg_per"],
-      "bonus_value": [-0.15, 0.25],
-      "description": "Greatly increases spell damage@but reduces max health."
+      "bonus_value": [0.15, 0.25],
+      "description": "Increases damage dealt to enemy but the@percentage of damage dealt costs health."
     },
     {
       "name": "Emblem Amulet",
@@ -170,20 +153,10 @@
 
 
     {
-      "name": "Wrench of Protection",
-      "image_path": "assets/item icons/2 Icons with back/Icons_34.png",
-      "bonus_type": ["temp_hp_increase", "hp_regen_flat", "dmg_reduce_per"],
-      "bonus_value": [10, 0.1, 0.02],
-      "description": "Periodically grants 10 temporary HP that@absorbs damage for every 30 seconds.@@Cooldown: 30s",
-      "cooldown": 30,
-      "attack_frames": "assets\\attacks_item\\Wrench of Protection\\activation_frames.PNG",
-      "attack_count": "temp_hp_count",
-      "attack_frame_duration": 66.66, 
-      "attack_repeat": 1,
-      "starts_at_zero": true,
-      "size": 0.7,
-      "sound_path": "pass muna bro",
-      "frame_type": "spritesheet"
+      "name": "Enrichment Booster",
+      "image_path": "assets/item icons/new items/2 Icons with back/Icons_41.png",
+      "bonus_type": ["atk_per", "atk_flat", "atk_speed_flat"],
+      "bonus_value": [0.05, 0.05, 10]
     },
     {
       "name": "Old Axe",
@@ -227,6 +200,7 @@
 
 
 
+
     {
       "name": "Burning Desire",
       "image_path": "assets/item icons/2 Icons with back/Icons_36.png",
@@ -244,45 +218,59 @@
       "frame_type": "spritesheet"
     },
     {
-      "name": "Curse of Warlord",
-      "image_path": "assets/item icons/new items/2 Icons with back/Icons_15.png",
-      "bonus_type": ["dmg_return_per"],
-      "bonus_value": [0.2],
-      "description": "Returns 20% of damage taken to attacker."
+      "name": "Last Breath",
+      "image_path": "assets/item icons/new items/2 Icons with back/Icons_04.png",
+      "bonus_type": ["heal_when_low", "all_stats_flat"],
+      "bonus_value": [1.0, 1],
+      "description": "When health falls below 10%, instantly@restores health equal to Strength.@@Cooldown: 120s",
+      "cooldown": 120,
+      "attack_frames": "assets/attacks_item/Last Breath/image_",
+      "attack_count": 8,
+      "attack_frame_duration": 125,
+      "attack_repeat": 5,
+      "starts_at_zero": true,
+      "size": 2,
+      "sound_path": "pass muna bro",
+      "frame_type": "frames"
     },
     {
-      "name": "Cheese",
-      "image_path": "assets/item icons/2 Icons with back/Icons_12.png",
-      "bonus_type": ["sp_increase_per"],
-      "bonus_value": [0.5],
-      "description": "Special meter fills 50% faster."
+      "name": "Unwavering Banner",
+      "image_path": "assets/item icons/2 Icons with back/Icons_05.png",
+      "bonus_type": ["extra_temp_hp", "hp_flat"],
+      "bonus_value": [40.0, 10.0],
+      "description": "Grants 40 temporary HP that absorbs@damage before affecting real health."
     },
     {
-      "name": "Mana Leech",
-      "image_path": "assets/item icons/new items/2 Icons with back/Icons_21.png",
-      "bonus_type": ["mana_burn_flat", "mana_burn_flat_dmg_per"],
-      "bonus_value": [5, 0.15],
-      "description": "Burns 5 mana for every attack dealt to enemy.@Additionally, deals 15% of burned mana as damage."
+      "name": "Ancient Elixir",
+      "image_path": "assets/item icons/2 Icons with back/Icons_35.png",
+      "bonus_type": ["immortality"],
+      "bonus_value": [1],
+      "description": "When taking damage that can kill the hero, becomes@immune to all damage for 7 seconds. Health is@reduced to 1 if activated.@@Cooldown: 240s",
+      "cooldown": 240,
+      "attack_frames": "assets\\attacks_item\\Immortality Elixir\\activation_frames.PNG",
+      "attack_count": "immortality_count",
+      "attack_frame_duration": 70,
+      "attack_repeat": 2,
+      "starts_at_zero": true,
+      "size": 0.7,
+      "sound_path": "pass muna bro",
+      "frame_type": "spritesheet"
     },
     {
-      "name": "nothing",
-      "image_path": "assets/item icons/new items/2 Icons with back/Icons_01.png",
-      "bonus_type": [],
-      "bonus_value": [],
-      "description": "Does nothing."
-    },
-    {
-      "name": "Enrichment Booster",
-      "image_path": "assets/item icons/new items/2 Icons with back/Icons_41.png",
-      "bonus_type": ["atk_per", "atk_flat", "atk_speed_flat"],
-      "bonus_value": [0.05, 0.05, 10]
-    },
-    {
-      "name": "nothing",
-      "image_path": "assets/item icons/new items/2 Icons with back/Icons_01.png",
-      "bonus_type": [],
-      "bonus_value": [],
-      "description": "Does nothing."
+      "name": "Wrench of Protection",
+      "image_path": "assets/item icons/2 Icons with back/Icons_34.png",
+      "bonus_type": ["temp_hp_increase", "hp_regen_flat", "dmg_reduce_per"],
+      "bonus_value": [10, 0.1, 0.02],
+      "description": "Periodically grants 10 temporary HP that@absorbs damage for every 30 seconds.@@Cooldown: 30s",
+      "cooldown": 30,
+      "attack_frames": "assets\\attacks_item\\Wrench of Protection\\activation_frames.PNG",
+      "attack_count": "temp_hp_count",
+      "attack_frame_duration": 66.66, 
+      "attack_repeat": 1,
+      "starts_at_zero": true,
+      "size": 0.7,
+      "sound_path": "pass muna bro",
+      "frame_type": "spritesheet"
     }
     
   ]

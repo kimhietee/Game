@@ -15,6 +15,16 @@ from global_vars import (
     # .
     DEFAULT_SPECIAL_SKILL_COOLDOWN,
     DEFAULT_HEALTH_REGENERATION, DEFAULT_MANA_REGENERATION,
+
+    RUNNING_ANIMATION_SPEED, DEFAULT_GRAVITY,
+    DISABLE_MANA_REGEN, DISABLE_HEAL_REGEN,
+    SPECIAL_DURATION, BASIC_FRAME_DURATION,
+
+    BASIC_SLASH_ANIMATION, BASIC_SLASH_SIZE,
+
+    screen,
+
+    attack_display
 )
 class Phantom_Assassin(Player):
     def __init__(self, player_type, enemy):
@@ -36,6 +46,10 @@ class Phantom_Assassin(Player):
         self.y = 50
         self.width = 200
 
+        self.y_visual_offset = 108
+
+        self.char_size = 1.4
+
         # ----- Hero Specifications -----
         # Stats
         self.strength = 40
@@ -46,8 +60,8 @@ class Phantom_Assassin(Player):
         self.base_mana_regen = 5.3
         self.base_attack_damage = 0.1
 
-        self.base_attack_speed = 100
-        self.base_attack_time = 1700
+        self.base_attack_speed = 120
+        self.base_attack_time = 1500
         
         self.base_animation_speed = 120
         
@@ -59,7 +73,7 @@ class Phantom_Assassin(Player):
         self.atk1_cooldown = 1000
         self.atk2_cooldown = 1000
         self.atk3_cooldown = 1000
-        self.sp_cooldown = 1000
+        self.atk4_cooldown = 1000
 
         self.sp_atk1_mana_cost = 80
         self.sp_atk2_mana_cost = 70
@@ -112,26 +126,54 @@ class Phantom_Assassin(Player):
         death_animation = [r'assets\characters\Phantom Assassin\Death.png', (1,6), False, 'spritesheet']
         atk1_animation = [r'assets\characters\Phantom Assassin\Attack1.png', (1,6), False, 'spritesheet']
         atk2_animation = [r'assets\characters\Phantom Assassin\Attack2.png', (1,6), False, 'spritesheet']
-        atk3_animiation = [r'assets\characters\Phantom Assassin\Attack3.png', (1,6), False, 'spritesheet']
+        atk3_animation = [r'assets\characters\Phantom Assassin\Attack3.png', (1,6), False, 'spritesheet']
         atk4_animation = [r'assets\characters\Phantom Assassin\Attack4.png', (1,6), False, 'spritesheet']
 
                 
-        # Attack Frame Count
-        self.attack_frames = {
-            'atk1frames': 24,
-            'atk2frames': 14,
-            'atk3frames': 34,
-            'atk4frames': 52,
-        }
+        
 
         # Attack Frame Source (remove the counting number)
         #   - str [0] file path
         #   - int [1] frame count
         #   - bool [2] starts at zero
-        atk1 = [r'assets\attacks\Phantom Assassin\atk1\?', 24, False]  # Assuming pathed frames
-        atk2 = [r'assets\attacks\Phantom Assassin\atk2\?', 14, False]
-        atk3 = [r'assets\attacks\Phantom Assassin\atk3\?', 34, False]
-        atk4 = [r'assets\attacks\Phantom Assassin\atk4\?', 52, False]
+        #   - int [3] size multiplier
+        #   - str [4] type: 'frames' or 'spritesheet'
+        #   - bool [5] flipped
+
+
+        # file path,                            frame count, starts at zero, size, type, flipped
+
+        # circle slash 
+        atk1 = [r'assets\attacks\Phantom Assassin\circle slash.png', (4, 5), False, 1, 'spritesheet', False]
+        # cool slashes
+        atk2 = [r'assets\attacks\Phantom Assassin\cool slashes.png', (4, 5), False, 1, 'spritesheet', False]
+        # dash slash
+        atk3 = [r'assets\attacks\Phantom Assassin\dash slash.png', (6, 5), False, 1, 'spritesheet', False]
+        # dash
+        atk4 = [r'assets\attacks\Phantom Assassin\dash.png', (1, 6), False, 1, 'spritesheet', False]
+        # slashes
+        atk5 = [r'assets\attacks\Phantom Assassin\slashes.png', (4, 5), False, 1, 'spritesheet', False]
+        # x slash
+        atk6 = [r'assets\attacks\Phantom Assassin\x slash.png', (3, 5), False, 1, 'spritesheet', False]
+        # cool x slash
+        atk7 = [r'assets\attacks\Phantom Assassin\cool x slash.png', (2, 5), False, 1, 'spritesheet', False]
+
+        # Attack Frame Count
+        #   - if not spritesheet, use actual attack count
+        self.attack_frames = {
+            'atk1frames': atk1[1][0] * atk1[1][1], # 20
+            'atk2frames': atk2[1][0] * atk2[1][1], # 20
+            'atk3frames': atk3[1][0] * atk3[1][1], # 30
+            'atk4frames': atk4[1][0] * atk4[1][1], # 6
+            'atk5frames': atk5[1][0] * atk5[1][1], # 20
+            'atk6frames': atk6[1][0] * atk6[1][1], # 15
+            'atk7frames': atk7[1][0] * atk7[1][1], # 10
+        }
+
+        # basic slash animation frames
+        basic_slash = [r'assets\attacks\Basic Attack\1', BASIC_SLASH_ANIMATION, 1, BASIC_SLASH_SIZE, 0]
+        self.basic_slash = self.load_img_frames_flipped_tile_method(basic_slash[0], basic_slash[1], basic_slash[2], basic_slash[3], basic_slash[4], True, False)
+        self.basic_slash_flipped = self.load_img_frames_flipped_tile_method(basic_slash[0], basic_slash[1], basic_slash[2], basic_slash[3], basic_slash[4], True, False)
         
         # Skill Icons Source
         default_skill_size = (ICON_WIDTH, ICON_HEIGHT) #touple type shi
@@ -156,35 +198,43 @@ class Phantom_Assassin(Player):
         special_skill_4_icon = self.load_img_scaled(sp_sk_4[0], sp_sk_4[1])
         
         # Load Attack Frames (use the frame source)
-        self.atk1 = self.load_img_frames(atk1[0], atk1[1], atk1[2], DEFAULT_CHAR_SIZE)
-        self.atk2 = self.load_img_frames(atk2[0], atk2[1], atk2[2], DEFAULT_CHAR_SIZE)
-        self.atk3 = self.load_img_frames(atk3[0], atk3[1], atk3[2], DEFAULT_CHAR_SIZE)
-        self.atk4 = self.load_img_frames(atk4[0], atk4[1], atk4[2], DEFAULT_CHAR_SIZE)
+        self.atk1 = self.load_img_frames_v2(atk1[0], atk1[1], atk1[2], atk1[3], atk1[4], atk1[5])
+        self.atk1_flipped = self.load_img_frames_v2(atk1[0], atk1[1], atk1[2], atk1[3], atk1[4], True)
+
+        self.atk2 = self.load_img_frames_v2(atk2[0], atk2[1], atk2[2], atk2[3], atk2[4], atk2[5])
+        self.atk2_flipped = self.load_img_frames_v2(atk2[0], atk2[1], atk2[2], atk2[3], atk2[4], True)
+
+        self.atk3 = self.load_img_frames_v2(atk3[0], atk3[1], atk3[2], atk3[3], atk3[4], atk3[5])
+        self.atk4 = self.load_img_frames_v2(atk4[0], atk4[1], atk4[2], atk4[3], atk4[4], atk4[5])
+        self.atk5 = self.load_img_frames_v2(atk5[0], atk5[1], atk5[2], atk5[3], atk5[4], atk5[5])
+        self.atk6 = self.load_img_frames_v2(atk6[0], atk6[1], atk6[2], atk6[3], atk6[4], atk6[5])
+        self.atk7 = self.load_img_frames_v2(atk7[0], atk7[1], atk7[2], atk7[3], atk7[4], atk7[5])
+        
 
         # Load Character Frames (search for the correct method to use in the base class (Player))
-        self.player_jump = self.load_img_frames_v2(jumping_animation[0], jumping_animation[1], jumping_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
-        self.player_jump_flipped = self.load_img_frames_v2(jumping_animation[0], jumping_animation[1], jumping_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
-        self.player_falling = self.load_img_frames_v2(falling_animation[0], falling_animation[1], falling_animation[2], DEFAULT_CHAR_SIZE, falling_animation[3])
-        self.player_falling_flipped = self.load_img_frames_v2(falling_animation[0], falling_animation[1], falling_animation[2], DEFAULT_CHAR_SIZE, falling_animation[3], True)  
+        self.player_jump = self.load_img_frames_v2(jumping_animation[0], jumping_animation[1], jumping_animation[2], self.char_size, jumping_animation[3])
+        self.player_jump_flipped = self.load_img_frames_v2(jumping_animation[0], jumping_animation[1], jumping_animation[2], self.char_size, jumping_animation[3], True)
+        self.player_falling = self.load_img_frames_v2(falling_animation[0], falling_animation[1], falling_animation[2], self.char_size, falling_animation[3])
+        self.player_falling_flipped = self.load_img_frames_v2(falling_animation[0], falling_animation[1], falling_animation[2], self.char_size, falling_animation[3], True)  
 
         self.player_jump = self.player_jump + self.player_falling
         self.player_jump_flipped = self.player_jump_flipped + self.player_falling_flipped
          
-        self.player_idle = self.load_img_frames_v2(idle_animation[0], idle_animation[1], idle_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
-        self.player_idle_flipped = self.load_img_frames_v2(idle_animation[0], idle_animation[1], idle_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
-        self.player_run = self.load_img_frames_v2(running_animation[0], running_animation[1], running_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
-        self.player_run_flipped = self.load_img_frames_v2(running_animation[0], running_animation[1], running_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
-        self.player_death = self.load_img_frames_v2(death_animation[0], death_animation[1], death_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
-        self.player_death_flipped = self.load_img_frames_v2(death_animation[0], death_animation[1], death_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
-        self.player_atk1 = self.load_img_frames_v2(atk1_animation[0], atk1_animation[1], atk1_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
-        self.player_atk1_flipped = self.load_img_frames_v2(atk1_animation[0], atk1_animation[1], atk1_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
-        self.player_atk2 = self.load_img_frames_v2(atk2_animation[0], atk2_animation[1], atk2_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
-        self.player_atk2_flipped = self.load_img_frames_v2(atk2_animation[0], atk2_animation[1], atk2_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
-        self.player_atk3 = self.load_img_frames_v2(atk3_animiation[0], atk3_animiation[1], atk3_animiation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
-        self.player_atk3_flipped = self.load_img_frames_v2(atk3_animiation[0], atk3_animiation[1], atk3_animiation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
-        self.player_sp = self.load_img_frames_v2(atk4_animation[0], atk4_animation[1], atk4_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3])
-        self.player_sp_flipped = self.load_img_frames_v2(atk4_animation[0], atk4_animation[1], atk4_animation[2], DEFAULT_CHAR_SIZE, basic_attack_animation[3], True)
-        
+        self.player_idle = self.load_img_frames_v2(idle_animation[0], idle_animation[1], idle_animation[2], self.char_size, idle_animation[3])
+        self.player_idle_flipped = self.load_img_frames_v2(idle_animation[0], idle_animation[1], idle_animation[2], self.char_size, idle_animation[3], True)
+        self.player_run = self.load_img_frames_v2(running_animation[0], running_animation[1], running_animation[2], self.char_size, running_animation[3])
+        self.player_run_flipped = self.load_img_frames_v2(running_animation[0], running_animation[1], running_animation[2], self.char_size, running_animation[3], True)
+        self.player_death = self.load_img_frames_v2(death_animation[0], death_animation[1], death_animation[2], self.char_size, death_animation[3])
+        self.player_death_flipped = self.load_img_frames_v2(death_animation[0], death_animation[1], death_animation[2], self.char_size, death_animation[3], True)
+        self.player_atk1 = self.load_img_frames_v2(atk1_animation[0], atk1_animation[1], atk1_animation[2], self.char_size, atk1_animation[3])
+        self.player_atk1_flipped = self.load_img_frames_v2(atk1_animation[0], atk1_animation[1], atk1_animation[2], self.char_size, atk1_animation[3], True)
+        self.player_atk2 = self.player_atk1
+        self.player_atk2_flipped = self.player_atk1_flipped
+        self.player_atk3 = self.load_img_frames_v2(atk2_animation[0], atk2_animation[1], atk2_animation[2], self.char_size, atk2_animation[3])
+        self.player_atk3_flipped = self.load_img_frames_v2(atk2_animation[0], atk2_animation[1], atk2_animation[2], self.char_size, atk2_animation[3], True)
+        self.player_sp = self.player_atk3
+        self.player_sp_flipped = self.player_atk3_flipped
+
         self.player_basic = self.player_atk1
         self.player_basic_flipped = self.player_atk1_flipped
 
@@ -233,7 +283,7 @@ class Phantom_Assassin(Player):
         self.sound3.set_volume(sound3[1])
         self.sound4.set_volume(sound4[1])
 
-        # player Icon Rects
+        # Player Icon Rects
         self.setup_skill_icon_rects(
             skill_icons=[
                 skill_1_icon,
@@ -329,7 +379,7 @@ class Phantom_Assassin(Player):
         ]
 
         # --------------- Special Skills ---------------
-        self.special_attacks = [
+        self.attacks_special = [
             # Skills
             Attacks(
                 skill_rect = self.special_skill_1_rect,
@@ -381,12 +431,27 @@ class Phantom_Assassin(Player):
         self.basic_attack = self.attacks[4]
         self.activate_special = self.attacks[5]
 
-        self.special_skill_1 = self.special_attacks[0]
-        self.special_skill_2 = self.special_attacks[1]
-        self.special_skill_3 = self.special_attacks[2]
-        self.special_skill_4 = self.special_attacks[3]
-        self.special_attack = self.special_attacks[4]
+        self.special_skill_1 = self.attacks_special[0]
+        self.special_skill_2 = self.attacks_special[1]
+        self.special_skill_3 = self.attacks_special[2]
+        self.special_skill_4 = self.attacks_special[3]
+        self.special_attack = self.attacks_special[4]
         
+
+    def atk1_animation(self, animation_speed=0):
+        if self.facing_right:
+            self.player_atk1_index, anim_active = self.animate(self.player_atk1, self.player_atk1_index, loop=False, basic_atk=True)
+        else:
+            self.player_atk1_index_flipped, anim_active = self.animate(self.player_atk1_flipped, self.player_atk1_index_flipped, loop=False, basic_atk=True)
+
+        self.last_atk_time -= animation_speed
+
+        if not anim_active:
+            self.attacking1 = False
+            self.basic_attacking = False  # Only matters if this was a basic attack
+            self.player_atk1_index = 0
+            self.player_atk1_index_flipped = 0    
+
     def input(self, hotkey1, hotkey2, hotkey3, hotkey4, right_hotkey, left_hotkey, jump_hotkey, basic_hotkey, special_hotkey):
         """The most crucial part of collecting user input.
         - Processes player input each frame, handling movement and skill casting based on state."""
@@ -417,13 +482,13 @@ class Phantom_Assassin(Player):
         if not self.is_jumping():
             if self.is_pressing(hotkey1) and not self.is_busy_attacking():
                 if self.is_in_basic_mode():
-                    if self.is_skill_ready(self.attacks, self.skill_1):
+                    if self.is_skill_ready(self.attacks, 0):
                         
                         frame_duration, repeat_animation = self.skill_duration(
                             set_mode = ('seconds', 1000),
                             frame_count = self.attack_frames['atk1frames']
                         )
-                        attack = Attack_Display(
+                        attack_display.add(Attack_Display(
                             x=self.attack_position(self.rect, 'x', 20, True),
                             y=self.attack_position(self.rect, 'y', 20, False),
                             frames=self.attack_frame_count(self.atk1, self.atk1_flipped),
@@ -436,45 +501,270 @@ class Phantom_Assassin(Player):
                             who_attacked=self.enemy,
                             moving=True,
                             delay=(True, 800),
-                            sound=(True, self.atk1_sound, None, None),
+                            sound=(True, self.sound1, None, None),
 
                             hitbox_scale_x=0.4,
                             hitbox_scale_y=0.4
-                            )
+                            ))
+                        
+                        self.consume_mana(self.attacks, 0)
+                        self.reset_skill_cooldown(self.attacks, 0, current_time)
+                        self.modify_current_state(
+                            running=False, animation="attacking1",
+                            ani_index="player_atk1", ani_index_flipped="player_atk1")
                         
                 elif self.is_in_special_mode():
                     if self.is_skill_ready(self.mana, self.special_skill_1):
-
                         pass
 
-                elif hotkey2 and not self.is_busy_attacking():
-                    if self.is_in_basic_mode():
-                        if self.is_skill_ready(self.mana, self.skill_2):
-                            
-                            frame_duration, repeat_animation = self.skill_duration(
-                                set_mode = ('seconds', 1000),
-                                frame_count = self.attack_frames['atk2frames']
-                            )
-                            attack = Attack_Display(
-                                x=self.attack_position(self.rect, 'x', 20, True),
-                                y=self.attack_position(self.rect, 'y', 20, False),
-                                frames=self.attack_frame_count(self.atk2, self.atk2_flipped),
-                                frame_duration=frame_duration,
-                                repeat_animation=repeat_animation,
-                                speed=0,
-                                dmg=self.atk2_damage[0],
-                                final_dmg=self.atk2_damage[1],
-                                who_attacks=self,
-                                who_attacked=self.enemy,
-                                moving=False,
-                                delay=(True, 800),
-                                sound=(True, self.atk2_sound, None, None),
 
-                                hitbox_scale_x=0.4,
-                                hitbox_scale_y=0.4
-                                )
-                            
-                    elif self.is_in_special_mode():
-                        if self.is_skill_ready(self.mana, self.special_skill_2):
 
-                            pass
+
+
+            elif self.is_pressing(hotkey2) and not self.is_busy_attacking():
+                if self.is_in_basic_mode():
+                    if self.is_skill_ready(self.attacks, 1):
+                        
+                        frame_duration, repeat_animation = self.skill_duration(
+                            set_mode = ('seconds', 1000),
+                            frame_count = self.attack_frames['atk2frames']
+                        )
+                        attack_display.add(Attack_Display(
+                            x=self.attack_position(self.rect, 'x', 20, True),
+                            y=self.attack_position(self.rect, 'y', 20, False),
+                            frames=self.attack_frame_count(self.atk2, self.atk2_flipped),
+                            frame_duration=frame_duration,
+                            repeat_animation=repeat_animation,
+                            speed=0,
+                            dmg=self.atk2_damage[0],
+                            final_dmg=self.atk2_damage[1],
+                            who_attacks=self,
+                            who_attacked=self.enemy,
+                            moving=False,
+                            delay=(True, 800),
+                            sound=(True, self.sound2, None, None),
+
+                            hitbox_scale_x=0.4,
+                            hitbox_scale_y=0.4
+                            ))
+                        self.consume_mana(self.attacks, 1)
+                        self.reset_skill_cooldown(self.attacks, 1, current_time)
+                        self.modify_current_state(
+                            running=False, animation="attacking2",
+                            ani_index="player_atk2", ani_index_flipped="player_atk2")
+                        
+                elif self.is_in_special_mode():
+                    if self.is_skill_ready(self.mana, self.special_skill_2):
+                        pass
+
+            
+
+
+            elif self.is_pressing(hotkey3) and not self.is_busy_attacking():
+                if self.is_in_basic_mode():
+                    if self.is_skill_ready(self.attacks, 2):
+                        
+                        frame_duration, repeat_animation = self.skill_duration(
+                            set_mode = ('seconds', 1000),
+                            frame_count = self.attack_frames['atk3frames']
+                        )
+                        attack_display.add(Attack_Display(
+                            x=self.attack_position(self.rect, 'x', 20, True),
+                            y=self.attack_position(self.rect, 'y', 20, False),
+                            frames=self.attack_frame_count(self.atk3),
+                            frame_duration=frame_duration,
+                            repeat_animation=repeat_animation,
+                            speed=0,
+                            dmg=self.atk3_damage[0],
+                            final_dmg=self.atk3_damage[1],
+                            who_attacks=self,
+                            who_attacked=self.enemy,
+                            moving=False,
+                            delay=(True, 800),
+                            sound=(True, self.sound3, None, None),
+
+                            hitbox_scale_x=0.4,
+                            hitbox_scale_y=0.4
+                            ))
+                        self.consume_mana(self.attacks, 2)
+                        self.reset_skill_cooldown(self.attacks, 2, current_time)
+                        self.modify_current_state(
+                            running=False, animation="attacking3",
+                            ani_index="player_atk3", ani_index_flipped="player_atk3")
+                        
+                elif self.is_in_special_mode():
+                    if self.is_skill_ready(self.mana, self.special_skill_3):
+                        pass
+
+
+
+
+            elif self.is_pressing(hotkey4) and not self.is_busy_attacking():
+                if self.is_in_basic_mode():
+                    if self.is_skill_ready(self.attacks, 3):
+                        
+                        frame_duration, repeat_animation = self.skill_duration(
+                            set_mode = ('seconds', 1000),
+                            frame_count = self.attack_frames['atk4frames'],
+                            repeat_animation=1
+                        )
+                        attack_display.add(Attack_Display(
+                            x=self.attack_position(self.rect, 'x', 20, True),
+                            y=self.attack_position(self.rect, 'y', 20, False),
+                            frames=self.attack_frame_count(self.atk4),
+                            frame_duration=frame_duration,
+                            repeat_animation=repeat_animation,
+                            speed=0,
+                            dmg=self.sp_damage[0],
+                            final_dmg=self.sp_damage[1],
+                            who_attacks=self,
+                            who_attacked=self.enemy,
+                            moving=False,
+                            delay=(True, 800),
+                            sound=(True, self.sound4, None, None),
+    
+                            hitbox_scale_x=0.4,
+                            hitbox_scale_y=0.4
+                            ))
+                        self.consume_mana(self.attacks, 3)
+                        self.reset_skill_cooldown(self.attacks, 3, current_time)
+                        self.modify_current_state(
+                            running=False, animation="sp_attacking",
+                            ani_index="player_sp", ani_index_flipped="player_sp")
+                        
+                elif self.is_in_special_mode():
+                    if self.is_skill_ready(self.mana, self.special_skill_4):
+                        pass
+
+            
+            elif self.is_pressing(basic_hotkey) and not self.is_busy_attacking():
+                if self.is_in_basic_mode():
+                    if self.can_basic_attack():
+                        
+                        attack_display.add(Attack_Display(
+                            x=self.attack_position(self.rect, 'x', 85, True),
+                            y=self.attack_position(self.rect, 'y', -35, False),
+                            frames=self.attack_frame_count(self.basic_slash, self.basic_slash_flipped),
+                            frame_duration=BASIC_FRAME_DURATION,
+                            repeat_animation=1,
+                            speed=0,
+                            dmg=self.basic_attack_damage,
+                            final_dmg=0,
+                            who_attacks=self,
+                            who_attacked=self.enemy,
+                            moving=True,
+                            delay=(True, self.calculate_attack_delay(500)),
+                            sound=(True, self.basic_sound, None, None),
+    
+                            hitbox_scale_x=0.7,
+                            hitbox_scale_y=0.4,
+                            hitbox_offset_x=-30 if self.facing_right else 30,
+
+                            is_basic_attack=True
+                            ))
+                        self.consume_mana(self.attacks, 4)
+                        self.reset_skill_cooldown(self.attacks, 4, current_time)
+                        self.modify_current_state(
+                            running=False, animation="basic_attacking",
+                            ani_index="player_basic", ani_index_flipped="player_basic")
+                            
+                        
+                        self.modify_attack_state(current_time, 'basic')
+                        
+                elif self.is_in_special_mode():
+                    if self.is_skill_ready(self.mana, self.special_skill_4):
+                        pass
+
+
+    def update(self):
+        
+        # # Base and Bonus Attack Speed Variables
+        # print(f"base_attack_speed: {self.base_attack_speed}")  # 300 (fire wizard specific)
+        # print(f"base_attack_time: {self.base_attack_time}")    # 1700 (milliseconds)
+        # print(f"bonus_attack_speed_flat: {self.bonus_attack_speed_flat}")  # 0
+        # print(f"bonus_attack_speed_per: {self.bonus_attack_speed_per}")    # 0.0
+
+        # # Calculated Attack Speed Values
+        # print(f"attack_speed (effective): {self.attack_speed}")  # Calculated via calculate_effective_as()
+        # print(f"basic_attack_cooldown: {self.basic_attack_cooldown}")  # Calculated via calculate_basic_attack_interval()
+        # print(f"basic_attack_animation_speed: {self.basic_attack_animation_speed}")  # Calculated based on attack speed
+
+        # # Timing and State Variables
+        # print(f"last_basic_attack_time: {self.last_basic_attack_time}")  # Timestamp of last basic attack
+
+        # # Related Constants (from global_vars)
+        # print(f"AGILITY_AS_BONUS: {global_vars.AGILITY_AS_BONUS}")  # 1 (+1 AS per agility point)
+        # print(f"BASIC_ATK_COOLDOWN: {global_vars.BASIC_ATK_COOLDOWN}")  # 500 (fallback cooldown in ms)
+        # print(f"DEFAULT_ANIMATION_SPEED: {global_vars.DEFAULT_ANIMATION_SPEED}")  # 120 (frames per second)
+        # print(f"MAX_ATTACK_SPEED: {global_vars.MAX_ATTACK_SPEED}")  # 700 (fastest cap)
+        # print(f"MIN_ATTACK_SPEED: {global_vars.MIN_ATTACK_SPEED}")  # 20 (slowest cap)
+
+        # # Method Results
+        # print(f"calculate_effective_as(): {self.calculate_effective_as()}")  # Current effective attack speed
+        # print(f"calculate_basic_attack_interval(): {self.calculate_basic_attack_interval()}")  # Current interval in ms
+        # print(f"can_basic_attack(): {self.can_basic_attack()}")  # Boolean: ready to attack?
+         
+        
+        if not self.is_dead():
+            self.player_death_index = 0
+            self.player_death_index_flipped = 0
+        if self.is_dead():
+            self.play_death_animation()
+        elif self.jumping:
+            self.jump_animation()
+        elif self.running and not self.jumping:
+            self.run_animation(self.running_animation_speed)
+        elif self.attacking1:
+            self.atk1_animation()
+            # print(self.player_atk1_index, 'basic attack index')
+
+        elif self.attacking2:
+            self.atk2_animation()
+        elif self.attacking3:
+            pass
+            self.atk3_animation()
+        elif self.sp_attacking:
+            pass
+            self.sp_animation()
+        elif self.basic_attacking:
+        #     pass
+            # print(self.basic_attacking, 'basic attacking')
+            # print(self.player_atk1_index, 'basic attack index')
+            self.basic_animation()
+            # self.atk1_animation()
+        else:
+            self.simple_idle_animation(RUNNING_ANIMATION_SPEED)
+
+        # Apply gravity
+        self.y_velocity += DEFAULT_GRAVITY
+        self.y_pos += self.y_velocity
+
+
+        # Update the player's position
+        self.rect.midbottom = (self.x_pos, self.y_pos)
+        self.rect.y += self.y_visual_offset
+
+
+        # Update the health and mana bars
+        if self.health != 0:
+            if not DISABLE_MANA_REGEN:
+                self.mana += self.mana_regen
+            if not DISABLE_HEAL_REGEN:
+                self.health += self.health_regen
+        else:
+            self.health = 0
+
+        if not global_vars.DISABLE_SPECIAL_REDUCE:
+            if self.special_active:
+                self.special -= SPECIAL_DURATION
+                if self.special <= 0:
+                    self.special_active = False
+        # if self.running:
+        #     print('is running')
+
+        
+        super().update()
+        # hitbox visual bug fix
+        self.hitbox_rect.y -= self.y_visual_offset
+        if global_vars.SHOW_HITBOX:
+            self.draw_hitbox(screen)

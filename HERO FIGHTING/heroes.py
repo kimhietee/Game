@@ -739,6 +739,8 @@ class Attack_Display(pygame.sprite.Sprite): #The Attack_Display class should han
         self.delay_start_time = pygame.time.get_ticks()
         self.delay_triggered = False
 
+        self.hitbox_offset_x = hitbox_offset_x
+        self.hitbox_offset_y = hitbox_offset_y
 
         self.hitbox_scale_x = hitbox_scale_x
         self.hitbox_scale_y = hitbox_scale_y
@@ -795,13 +797,13 @@ class Attack_Display(pygame.sprite.Sprite): #The Attack_Display class should han
             return
         
         # Apply crit for basic attacks only
-        if self.is_basic_attack and hasattr(self.who_attacks, 'crit_chance') and hasattr(self.who_attacks, 'crit_damage'):
-            crit_roll = random.random()
-            if crit_roll < self.who_attacks.crit_chance:
-                damage_amount += damage_amount * self.who_attacks.crit_damage
-
         if self.is_basic_attack:
-            # print('BURNED', damage_amount)
+            if hasattr(self.who_attacks, 'crit_chance') and hasattr(self.who_attacks, 'crit_damage'):
+                crit_roll = random.random()
+                if crit_roll < self.who_attacks.crit_chance:
+                    damage_amount += damage_amount * self.who_attacks.crit_damage
+
+
             if damage_amount > 0: # bug fix: only burn if damage > 0
                 if self.who_attacks.mana_burn_flat[0] > 0: # burns mana at provided amount 
                         enemy.take_mana_burn(enemy, self.who_attacks.mana_burn_flat[0], self.who_attacks.mana_burn_flat[1])
@@ -809,6 +811,15 @@ class Attack_Display(pygame.sprite.Sprite): #The Attack_Display class should han
                 if self.who_attacks.mana_burn_per[0] > 0: # burns mana based on percentage of damage dealt (ex. dmg 5 -> 50% - 2.5 burn mana)
                     enemy.take_mana_burn(enemy, damage_amount * self.who_attacks.mana_burn_per[0], self.who_attacks.mana_burn_per[1])
         
+            if self.who_attacks.lifesteal > 0 and not self.who_attacks.is_dead():
+                lifesteal_amount = damage_amount * self.who_attacks.lifesteal
+                self.who_attacks.take_heal(abs(lifesteal_amount))
+
+            elif self.who_attacks.lifesteal < 0 and not self.who_attacks.is_dead():
+                # damages the attacker if lifesteal is less than 0
+                lifesteal_amount = damage_amount * self.who_attacks.lifesteal
+                self.who_attacks.take_damage(abs(lifesteal_amount))
+                
         enemy.take_damage(
             damage_amount,
             add_mana_to_self=True if self.add_mana else False,
@@ -817,16 +828,18 @@ class Attack_Display(pygame.sprite.Sprite): #The Attack_Display class should han
             mana_multiplier=self.mana_mult
         )
         self.who_attacks.take_special(damage_amount * SPECIAL_MULTIPLIER)
-        
-        if self.who_attacks.lifesteal > 0 and not self.who_attacks.is_dead():
-            lifesteal_amount = damage_amount * self.who_attacks.lifesteal
-            self.who_attacks.take_heal(lifesteal_amount) #min(self.who_attacks.max_health, self.who_attacks.health + lifesteal_amount)
-        if self.who_attacks.lifesteal < 0 and not self.who_attacks.is_dead():
+        # damages self 
+        if self.who_attacks.health_cost > 0 and not self.who_attacks.is_dead():
             # damages the attacker if lifesteal is less than 0
-            lifesteal_amount = damage_amount * self.who_attacks.lifesteal
-            self.who_attacks.take_damage(abs(lifesteal_amount)) #min(self.who_attacks.max_health, self.who_attacks.health + lifesteal_amount)
-            # print('hp reduced', self.who_attacks.lifesteal, damage_amount, self.who_attacks.lifesteal* damage_amount)
-            # print(self.who_attacks.health, lifesteal_amount, self.who_attacks.health-lifesteal_amount)
+            health_cost_amount = damage_amount * self.who_attacks.health_cost
+            self.who_attacks.take_damage(abs(health_cost_amount))
+
+        # spell lifesteal, health attacker only spells
+        if self.who_attacks.spell_lifesteal > 0 and not self.who_attacks.is_dead():
+            spell_lifesteal_amount = damage_amount * self.who_attacks.spell_lifesteal
+            self.who_attacks.take_heal(abs(spell_lifesteal_amount))
+        
+        
     def _apply_heal(self, heal_amount):
         """Helper method to apply healing with special gain."""
         self.who_attacks.take_heal(heal_amount)
@@ -892,7 +905,7 @@ class Attack_Display(pygame.sprite.Sprite): #The Attack_Display class should han
                     self.y = self.who_attacks.y_pos + self.follow_offset[1]
 
                 self.image = self.frames[self.frame_index]
-                self.rect = self.image.get_rect(center=(self.x, self.y))
+                self.rect = self.image.get_rect(center=(self.x - self.hitbox_offset_x, self.y + self.hitbox_offset_y))
 
                 self.hitbox_width = int(self.rect.width * self.hitbox_scale_x)
                 self.hitbox_height = int(self.rect.height * self.hitbox_scale_y)
@@ -1689,14 +1702,15 @@ class Item:
             "dmg_reduce_per": "Damage Reduction",
             "dmg_return_per": "Damage Return",
             "lifesteal_per": "Lifesteal",
-            "health_cost_per": "Health Cost (as Lifesteal Penalty)",
+            "health_cost_per": "Health Cost",
             "move_speed_per": "Move Speed",
             "cd_reduce_per": "Cooldown Reduction",
             "sp_increase_per": "Special Increase",
             "mana_burn_per": "Mana Burn",
             "mana_burn_per_dmg": "Mana Burn to Damage",
             "mana_burn_flat": "Mana Burn",
-            "mana_burn_flat_dmg_per": "Mana Burn to Damage" # force display at percentage
+            "mana_burn_flat_dmg_per": "Mana Burn to Damage", # force display at percentage
+            "spell_lifesteal_per": "Spell Lifesteal"
         }
         
         # Types that are abilities and should not show values
@@ -1993,7 +2007,8 @@ HERO_INFO = { # Agility on display based on total damage around 5-6 seconds, com
     "Water Princess": "Strength: 40, Intelligence: 48, Agility: 20, , Trait: 15%->20% mana, cost/delay",
     "Forest Ranger": "Strength: 32, Intelligence: 52, Agility: 30, , Trait: 10% lifesteal, 20% atk speed, 200%+ mana refund",
     "Yurei": "Strength: 36, Intelligence: 40, Agility: 37, , Trait: 15% cd reduce",
-    "Chthulu": "Strength: 40, Intelligence: 40, Agility: 25, , Trait: 5-10% stat,potency"
+    "Chthulu": "Strength: 40, Intelligence: 40, Agility: 25, , Trait: 5-10% stat,potency",
+    "Phantom Assassin": "Strength: 40, Intelligence: 40, Agility: 30, , Trait: 0",
 }
 
 # HERO_INFO = { # Agility on display based on total damage around 5-6 seconds, compared with data is above forest ranger class
@@ -2500,15 +2515,15 @@ def auto_align(instant=True):
 
 item_spacing_w = 7
 item_max_y = 4
-def paginating( move:bool, instant:bool = False, max_height = item_max_y):
+def paginating(move:bool, instant:bool = False, max_height = item_max_y):
         auto_align(instant)
         global item_page
-        print(f"Current Page = {item_page}")
+        # print(f"Current Page = {item_page}")
         baseline = item_spacing_w * max_height
         total_page = ((len(p1_items)-1)//(baseline)) + 1
-        print(f"Baseline = {baseline}")
-        print(f" p1 items = {len(p1_items)}")
-        print(f" total page {total_page}")
+        # print(f"Baseline = {baseline}")
+        # print(f" p1 items = {len(p1_items)}")
+        # print(f" total page {total_page}")
         
         if move:
             if item_page < total_page:
@@ -2777,8 +2792,8 @@ def player_selection():
     
     while True:
         if immediate_run: # DEV OPTION ONLY
-            PLAYER_1_SELECTED_HERO = Wanderer_Magician
-            PLAYER_2_SELECTED_HERO = Forest_Ranger
+            PLAYER_1_SELECTED_HERO = Phantom_Assassin
+            PLAYER_2_SELECTED_HERO = Wanderer_Magician
             map_selected = Animate_BG.dark_forest_bg # Default
             bot = create_bot(Wanderer_Magician, hero1, hero1) if global_vars.SINGLE_MODE_ACTIVE else None
             player_1_choose = False
@@ -2807,32 +2822,24 @@ def player_selection():
                 if menu_button.is_clicked(event.pos):
                     menu() 
                     return
-            # if event.type == pygame.MOUSEBUTTONDOWN:
                 if all_items_button.is_clicked(event.pos):
                     if player_2_choose:
                         global_vars.all_items = all_items_button.toggle(global_vars.all_items)
-            # if event.type == pygame.MOUSEBUTTONDOWN:
                 if x2_bot.is_clicked(event.pos):
                     if player_2_choose:
                         global_vars.toggle_hero3 = x2_bot.toggle(global_vars.toggle_hero3)
-            # if event.type == pygame.MOUSEBUTTONDOWN:
                 if random_p1.is_clicked(event.pos):
                     if player_1_choose:
                         global_vars.random_pick_p1 = random_p1.toggle(global_vars.random_pick_p1)
-            # if event.type == pygame.MOUSEBUTTONDOWN:
                 if random_p2.is_clicked(event.pos):
                     if player_2_choose:
                         global_vars.random_pick_p2 = random_p2.toggle(global_vars.random_pick_p2)
-            # if event.type == pygame.MOUSEBUTTONDOWN:
                 if toggle_bot_button.is_clicked(event.pos):
                     if player_1_choose:
                         global_vars.HERO1_BOT = toggle_bot_button.toggle(global_vars.HERO1_BOT)
-            # if event.type == pygame.MOUSEBUTTONDOWN:
                 if next_page_button.is_clicked(event.pos):
-                    print('next page')
                     paginating(True)
                 if back_page_button.is_clicked(event.pos):
-                    print('back page')
                     paginating(False)
 
         # screen.blit(background, (0, 0))

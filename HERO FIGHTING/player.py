@@ -1081,9 +1081,9 @@ class Player(pygame.sprite.Sprite):
         elif self.player_type == 2:
             self.special_rect = special_icon.get_rect(center=(default_x_pos - start_offset_x - spacing_x * 4 - 50, skill_y_offset))
             for i, icon in enumerate(special_skill_icons):
-                setattr(self, f'special_skill_{i+1}_rect', icon.get_rect(center=(default_x_pos - start_offset_x - spacing_x * (i + 1), skill_y_offset)))
+                setattr(self, f'special_skill_{i+1}_rect', icon.get_rect(center=(default_x_pos - start_offset_x - spacing_x * (3 - i), skill_y_offset)))
             for i, icon in enumerate(skill_icons):
-                setattr(self, f'skill_{i+1}_rect', icon.get_rect(center=(default_x_pos - start_offset_x - spacing_x * (i + 1), skill_y_offset)))
+                setattr(self, f'skill_{i+1}_rect', icon.get_rect(center=(default_x_pos - start_offset_x - spacing_x * (3 - i), skill_y_offset)))
 
 
 
@@ -2341,6 +2341,14 @@ class Player(pygame.sprite.Sprite):
         return current_time - self.last_basic_attack_time >= self.calculate_basic_attack_interval()
 
     def calculate_attack_animation_speed(self):
+        '''handles how fast the basic animation when attacking.
+        
+        requires:
+            - attack speed: total attack speed
+            - base attack speed: hero attack speed
+            - attack speed modifier: how fast the animation is going (ratio)
+        returns -> animation speed for basic attack 
+        '''
         attack_speed = self.attack_speed / self.base_attack_speed
         reduced_value = attack_speed ** self.attack_speed_modifier
         return max(self.min_animation_speed, self.base_animation_speed / reduced_value)

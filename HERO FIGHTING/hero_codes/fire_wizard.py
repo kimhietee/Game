@@ -192,7 +192,7 @@ class Fire_Wizard(Player):
         self.base_attack_damage = 0.1 # +2.6 = 2.7
 
         self.base_attack_speed = 100
-        self.base_attack_time = 1700
+        self.base_attack_time = 1750
 
         self.base_animation_speed = 120
         self.min_animation_speed = 70

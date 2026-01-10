@@ -24,15 +24,17 @@
       "name": "Undead Marrow",
       "image_path": "assets/item icons/new items/2 Icons with back/Icons_40.png",
       "bonus_type": ["lifesteal_per"],
-      "bonus_value": [0.3],
-      "description": "Heals the attacker for 30% of the@attack damage dealt to enemy."
+      "bonus_value": [0.18],
+      "description": "Heals the attacker for 18% of the@attack damage dealt to enemy."
 
     },
     {
       "name": "Enchanted Bracelet",
       "image_path": "assets/item icons/new items/2 Icons with back/Icons_39.png",
       "bonus_type": ["spell_lifesteal_per"],
-      "bonus_value": [0.18]
+      "bonus_value": [0.18],
+      "description": "Heals the attacker for 18% of the@spell damage dealt to enemy."
+
     },
     {
       "name": "Vitality Booster",
@@ -62,24 +64,19 @@
       "name": "Crimson Hearthstone",
       "image_path": "assets/item icons/gems/Icons_15.png",
       "bonus_type": ["hp_flat", "dmg_reduce_per", "hp_regen_per"],
-      "bonus_value": [25.0, 0.05, 0.05],
-      "description": "Increased max health and regen and@reduced damage taken."
+      "bonus_value": [25.0, 0.05, 0.05]
     },
     {
       "name": "Azure Myststone",
       "image_path": "assets/item icons/gems/Icons_11.png",
-      "bonus_type": ["mana_flat", "spell_lifesteal_per", "mana_regen_per"],
-      "bonus_value": [25.0, 0.05, 0.05],
-      "description": "Increased max mana and regen and heals the@attacker based on the spell damage dealt."
-
+      "bonus_type": ["mana_flat", "spell_lifesteal_per", "spell_dmg_per"],
+      "bonus_value": [25.0, 0.05, 0.05]
     },
     {
       "name": "Verdant Fury",
       "image_path": "assets/item icons/gems/Icons_03.png",
       "bonus_type": ["atk_flat", "atk_speed_per", "move_speed_per"],
-      "bonus_value": [0.25, 0.05, 0.05],
-      "description": "Increased attack damage and move speed and@increased attack rate."
-
+      "bonus_value": [0.25, 0.05, 0.05]
     },
     {
       "name": "Elixir",
@@ -155,8 +152,8 @@
     {
       "name": "Enrichment Booster",
       "image_path": "assets/item icons/new items/2 Icons with back/Icons_41.png",
-      "bonus_type": ["atk_per", "atk_flat", "atk_speed_flat"],
-      "bonus_value": [0.05, 0.05, 10]
+      "bonus_type": ["hp_regen_flat", "mana_regen_flat", "hp_regen_per", "mana_regen_per"],
+      "bonus_value": [0.05, 0.05, 0.1, 0.1]
     },
     {
       "name": "Old Axe",

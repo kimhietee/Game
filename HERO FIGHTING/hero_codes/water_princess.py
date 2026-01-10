@@ -59,7 +59,7 @@ class Water_Princess(Player):
         self.hitbox_rect = pygame.Rect(0, 0, 50, 100)
 
         # stat
-        self.strength = 40 
+        self.strength = 38 
         self.intelligence = 48
         self.agility = 20 # real agility = 20
 
@@ -82,8 +82,8 @@ class Water_Princess(Player):
         self.base_mana_regen = 6.05 # 6.53
         self.base_attack_damage = 0.0 # 2.0
 
-        self.base_attack_speed = 80
-        self.base_attack_time = 3200
+        self.base_attack_speed = 60
+        self.base_attack_time = 3700
 
         self.base_animation_speed = 120
         self.min_animation_speed = 80

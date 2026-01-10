@@ -55,7 +55,7 @@ class Phantom_Assassin(Player):
         
         self.base_animation_speed = 120
         self.min_animation_speed = 50
-        self.attack_speed_modifier = 0.8
+        self.attack_speed_modifier = 1.2
         
         self.atk1_mana_cost = 20
         self.atk2_mana_cost = 20

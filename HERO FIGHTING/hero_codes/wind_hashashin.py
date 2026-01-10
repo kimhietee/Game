@@ -91,7 +91,7 @@ class Wind_Hashashin(Player):
         self.base_mana_regen = 5.1 # 5.1 + 0.4 = 5.5
         self.base_attack_damage = 0.0 # 4.8
 
-        self.base_attack_speed = 110
+        self.base_attack_speed = 105
         self.base_attack_time = 1700
 
         self.base_animation_speed = 120

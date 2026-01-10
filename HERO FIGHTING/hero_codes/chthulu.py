@@ -75,6 +75,8 @@ class Chthulu(Player):
 
         self.base_attack_speed = 100
         self.base_attack_time = 1900
+        self.min_animation_speed = 80
+        self.attack_speed_modifier = 0.5
 
         self.base_animation_speed = 120
 
@@ -85,7 +87,7 @@ class Chthulu(Player):
         # Recalculate attack speed variables for fire wizard's base stats
         self.attack_speed = self.calculate_effective_as()
         self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-        self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
+        self.basic_attack_animation_speed = self.calculate_attack_animation_speed()
 
         # Base Stats
         self.max_health = (self.strength * self.str_mult)
@@ -517,7 +519,6 @@ class Chthulu(Player):
         self.using_sp_duration = 0
         self.hp_cost = 1.0
         # self.haste_value = DEFAULT_ANIMATION_SPEED #(120) #default, change in skill 1 config
-        # self.default_atk_speed = self.basic_attack_animation_speed
 
     def update_hitbox(self):
         # Center the hitbox inside the player's main rect

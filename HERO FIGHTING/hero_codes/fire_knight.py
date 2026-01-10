@@ -97,10 +97,12 @@ class Fire_Knight(Player):
         self.base_mana_regen = 4.85 # 5.21
         self.base_attack_damage = 3.4 # 6.7
 
-        self.base_attack_speed = 50
+        self.base_attack_speed = 60
         self.base_attack_time = 1800
 
         self.base_animation_speed = 120
+        self.min_animation_speed = 80
+        self.attack_speed_modifier = 0.5
 
         self.health_regen = self.calculate_regen(self.base_health_regen, self.hp_regen_per_str, self.strength) #1.1 + 42 * 0.01 = 1.52
         self.mana_regen = self.calculate_regen(self.base_mana_regen, self.mana_regen_per_int, self.intelligence) #4.85 + 36 * 0.01 = 5.21
@@ -109,7 +111,7 @@ class Fire_Knight(Player):
         # Recalculate attack speed variables for fire wizard's base stats
         self.attack_speed = self.calculate_effective_as()
         self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-        self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
+        self.basic_attack_animation_speed = self.calculate_attack_animation_speed()
 
 
         # Base Stats

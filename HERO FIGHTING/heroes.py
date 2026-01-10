@@ -2793,7 +2793,7 @@ def player_selection():
     while True:
         if immediate_run: # DEV OPTION ONLY
             PLAYER_1_SELECTED_HERO = Phantom_Assassin
-            PLAYER_2_SELECTED_HERO = Wanderer_Magician
+            PLAYER_2_SELECTED_HERO = Fire_Knight
             map_selected = Animate_BG.dark_forest_bg # Default
             bot = create_bot(Wanderer_Magician, hero1, hero1) if global_vars.SINGLE_MODE_ACTIVE else None
             player_1_choose = False

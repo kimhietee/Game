@@ -85,6 +85,8 @@ class Wanderer_Magician(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING 
         self.base_attack_time = 1600
 
         self.base_animation_speed = 120
+        self.min_animation_speed = 60
+        self.attack_speed_modifier = 0.5
 
         self.health_regen = self.calculate_regen(self.base_health_regen, self.hp_regen_per_str, self.strength) #0.6 + 40 * 0.01 = 1.0
         self.mana_regen = self.calculate_regen(self.base_mana_regen, self.mana_regen_per_int, self.intelligence) #6.75 + 36 * 0.01 = 7.01
@@ -93,7 +95,7 @@ class Wanderer_Magician(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING 
         # Recalculate attack speed variables for fire wizard's base stats
         self.attack_speed = self.calculate_effective_as()
         self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-        self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
+        self.basic_attack_animation_speed = self.calculate_attack_animation_speed()
         
         self.base_max_mana = self.intelligence * self.int_mult
         
@@ -965,3 +967,4 @@ class Wanderer_Magician(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING 
         # pygame.draw.rect(screen, (255, 0, 0), self.rect)
         
         super().update()
+

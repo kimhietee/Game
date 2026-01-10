@@ -137,6 +137,7 @@ class Player(pygame.sprite.Sprite):
         # base atk speed for every hero, modify each if you want to set base 
         self.base_attack_speed = 100 
         self.base_attack_time = 1700
+        
 
         
 
@@ -160,12 +161,14 @@ class Player(pygame.sprite.Sprite):
         self.basic_attack_cooldown = BASIC_ATK_COOLDOWN
 
         self.base_animation_speed = 120
+        self.attack_speed = self.calculate_effective_as()
+        self.min_animation_speed = 80
+        self.attack_speed_modifier = 0.5
 
-        self.basic_attack_animation_speed = self.base_animation_speed # also set this one 
-        
+        self.basic_attack_animation_speed = self.calculate_attack_animation_speed()
         self.default_animation_speed = self.base_animation_speed
 
-        self.attack_speed = self.calculate_effective_as()
+        
 
         attr_size = (24,24)
         # Strength icon
@@ -377,7 +380,6 @@ class Player(pygame.sprite.Sprite):
         
         
         
-        # self.basic_attack_animation_speed =self.basic_attack_animation_speed * 0.5 # 60
 
         self.mana_costs = []
 
@@ -691,8 +693,7 @@ class Player(pygame.sprite.Sprite):
                     self.bonus_attack_speed_flat += val
                     self.attack_speed = self.calculate_effective_as()
                     self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-                    # self.basic_attack_animation_speed = DEFAULT_ANIMATION_SPEED - ((DEFAULT_ANIMATION_SPEED * (self.base_attack_time / self.basic_attack_cooldown) - DEFAULT_ANIMATION_SPEED))
-                    self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
+                    self.basic_attack_animation_speed = self.calculate_attack_animation_speed()
 
                     self.attacks[4].cooldown = self.basic_attack_cooldown
                     self.attacks_special[4].cooldown = self.basic_attack_cooldown
@@ -755,8 +756,7 @@ class Player(pygame.sprite.Sprite):
                     self.bonus_attack_speed_per += val
                     self.attack_speed = self.calculate_effective_as()
                     self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-                    # self.basic_attack_animation_speed = DEFAULT_ANIMATION_SPEED - ((DEFAULT_ANIMATION_SPEED * (self.base_attack_time / self.basic_attack_cooldown) - DEFAULT_ANIMATION_SPEED))
-                    self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
+                    self.basic_attack_animation_speed = self.calculate_attack_animation_speed()
 
                     self.attacks[4].cooldown = self.basic_attack_cooldown
                     self.attacks_special[4].cooldown = self.basic_attack_cooldown
@@ -854,15 +854,14 @@ class Player(pygame.sprite.Sprite):
         self.attack_speed = self.calculate_effective_as()
         self.basic_attack_cooldown = self.calculate_basic_attack_interval()
 
-        self.basic_attack_animation_speed = max(0.01, self.basic_attack_animation_speed)
-        self.basic_attack_cooldown = max(0.01, self.basic_attack_cooldown)
+        self.basic_attack_cooldown = max(0.2, self.basic_attack_cooldown)
         self.attacks[4].cooldown = self.basic_attack_cooldown
         self.attacks_special[4].cooldown = self.basic_attack_cooldown
 
         # Clamp current values
         self.health = min(self.health, self.max_health)
         self.mana = min(self.mana, self.max_mana)
-        self.basic_attack_animation_speed = max(10, min(50, self.basic_attack_animation_speed))
+        self.basic_attack_animation_speed = max(20, self.basic_attack_animation_speed)
         # Reapply hero-specific (e.g., arrow_stuck)
         if hasattr(self, 'arrow_stuck_damage'):
             # reapply bonus
@@ -2341,7 +2340,10 @@ class Player(pygame.sprite.Sprite):
         current_time = pygame.time.get_ticks()
         return current_time - self.last_basic_attack_time >= self.calculate_basic_attack_interval()
 
-
+    def calculate_attack_animation_speed(self):
+        attack_speed = self.attack_speed / self.base_attack_speed
+        reduced_value = attack_speed ** self.attack_speed_modifier
+        return max(self.min_animation_speed, self.base_animation_speed / reduced_value)
 
 
 

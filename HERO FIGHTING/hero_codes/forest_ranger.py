@@ -103,14 +103,18 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
         self.base_attack_speed = 100
         self.base_attack_time = 1700
 
+        self.base_animation_speed = 120
+        self.min_animation_speed = 40
+        self.attack_speed_modifier = 0.8
+
         self.health_regen = self.calculate_regen(self.base_health_regen, self.hp_regen_per_str, self.strength) #0.8 + 32 * 0.01 = 1.12
         self.mana_regen = self.calculate_regen(self.base_mana_regen, self.mana_regen_per_int, self.intelligence) #5.4 + 52 * 0.01 = 5.92
         self.basic_attack_damage = self.calculate_regen(self.base_attack_damage, self.agi_mult, self.agility, basic_attack=True) # 0.5 + 30 * 0.1 = 3.5
 
         # Recalculate attack speed variables for fire wizard's base stats
         self.attack_speed = self.calculate_effective_as()
-        self.base_animation_speed = 120
-        self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
+        self.basic_attack_cooldown = self.calculate_basic_attack_interval()
+        self.basic_attack_animation_speed = self.calculate_attack_animation_speed()
         
         self.max_health = self.strength * self.str_mult
         self.max_mana = self.intelligence * self.int_mult
@@ -1417,7 +1421,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
             self.speed = self.default_speed * 1.5  # increase move speed
             self.attack_speed = self.calculate_effective_as()
             self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-            self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
+            self.basic_attack_animation_speed = self.calculate_attack_animation_speed()
             self.attacks[4].cooldown = self.basic_attack_cooldown
             self.attacks_special[4].cooldown = self.basic_attack_cooldown
             self.was_hasted = True
@@ -1426,7 +1430,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
             self.speed = self.default_speed  # reset move speed
             self.attack_speed = self.calculate_effective_as()
             self.basic_attack_cooldown = self.calculate_basic_attack_interval()
-            self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
+            self.basic_attack_animation_speed = self.calculate_attack_animation_speed()
             self.attacks[4].cooldown = self.basic_attack_cooldown
             self.attacks_special[4].cooldown = self.basic_attack_cooldown
             self.was_hasted = False

@@ -32,7 +32,7 @@ gold = 'Gold' #special
 # 'blue'
 # 'yellow'
 
-IMMEDIATE_RUN = True
+IMMEDIATE_RUN = False
 
 HERO1_BOT = False
 all_items = False #equip bot with all items

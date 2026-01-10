@@ -54,6 +54,8 @@ class Phantom_Assassin(Player):
         self.base_attack_time = 1500
         
         self.base_animation_speed = 120
+        self.min_animation_speed = 50
+        self.attack_speed_modifier = 0.8
         
         self.atk1_mana_cost = 20
         self.atk2_mana_cost = 20
@@ -243,7 +245,7 @@ class Phantom_Assassin(Player):
         self.basic_attack_damage = self.calculate_regen(self.base_attack_damage, self.agi_mult, self.agility, basic_attack=True) # 0.1 + 26 * 0.1 = 2.7
 
         self.attack_speed = self.calculate_effective_as()
-        self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
+        self.basic_attack_animation_speed = self.calculate_attack_animation_speed()
         
         # set to new hp/mana
         self.white_health_p1 = self.health

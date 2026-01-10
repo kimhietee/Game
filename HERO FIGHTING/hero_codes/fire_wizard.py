@@ -194,14 +194,17 @@ class Fire_Wizard(Player):
         self.base_attack_speed = 100
         self.base_attack_time = 1700
 
+        self.base_animation_speed = 120
+        self.min_animation_speed = 70
+        self.attack_speed_modifier = 0.5
+
         self.health_regen = self.calculate_regen(self.base_health_regen, self.hp_regen_per_str, self.strength) #0.8 + 40 * 0.01 = 1.2
         self.mana_regen = self.calculate_regen(self.base_mana_regen, self.mana_regen_per_int, self.intelligence) #5.3 + 40 * 0.01 = 5.7
         self.basic_attack_damage = self.calculate_regen(self.base_attack_damage, self.agi_mult, self.agility, basic_attack=True) # 0.1 + 26 * 0.1 = 2.7
         
         # Recalculate attack speed variables for fire wizard's base stats
         self.attack_speed = self.calculate_effective_as()
-        self.base_animation_speed = 120
-        self.basic_attack_animation_speed = self.base_animation_speed / (self.attack_speed / self.base_attack_speed)
+        self.basic_attack_animation_speed = self.calculate_attack_animation_speed()
 
         #2 attack per basic attack (5.6 DPS)
         # Base Stats

@@ -139,7 +139,6 @@ class Player(pygame.sprite.Sprite):
         self.base_attack_time = 1700
         
 
-        
 
         # stat
         self.strength = 40
@@ -459,6 +458,61 @@ class Player(pygame.sprite.Sprite):
         '''Jump strength/force of player.'''
         # self.detect_ground = DEFAULT_Y_POS
         # '''Limit where player detects the ground at y level.'''
+
+
+        self.get_last_position = 0
+        self.dash_start_time = 0
+        self.dash_delay_triggered = False
+        self.perform_dash = False
+
+    def activate_dash(self):
+        self.perform_dash = True
+    def deactivate_dash(self):
+        self.activate_dash = False
+
+
+    def trigger_dash(self, attacking:str, speed:int, max_distance:int, delay:int=0, facing:bool=True, forced:tuple[bool | str]=(False, 'left')):
+        """Handles dash movement when dash is activated.
+
+        Guide:
+            attacking                      - Pass the attacking to disable when max distance is reached.
+            speed, max_distance            - Provide the speed and max_distance of the dash.
+            delay                          - If delay is provided, set the duration for the delay
+            facing                         - Hero dashes the direction its facing.
+            forced                         - If forced is provided, choose direction as tuple.
+        """
+        current_time = pygame.time.get_ticks()
+
+        if self.get_last_position == 0:
+            self.get_last_position = self.x_pos
+            self.dash_start_time = pygame.time.get_ticks()
+        
+        # print('asd', self.dash_start_time, current_time, self.dash_delay_triggered)
+
+        if not self.dash_delay_triggered:
+            if current_time - self.dash_start_time < delay:
+                print('nope')
+                return
+            else:
+                print('SET TO TRUE')
+                self.dash_delay_triggered = True
+        else:
+
+            get_current_position = self.x_pos
+            dash_distance_covered = abs(get_current_position - self.get_last_position)
+            if dash_distance_covered >= max_distance:
+                self.get_last_position = 0
+                self.dash_start_time = 0
+                self.dash_delay_triggered = False
+                print('end')
+                setattr(self, attacking, False)
+            else:
+                if facing:
+                    self.x_pos += (speed if self.facing_right else -speed)
+                elif forced[0]:
+                    self.x_pos += (-speed if forced[1] == 'left' else speed)
+            print(dash_distance_covered >= max_distance, 'vro')
+            # print(self.get_last_position, get_current_position, dash_distance_covered)
 
     def display_damage(self, damage, interval=30, color=(255, 0, 0), size=None, health_modify=False, mana_modify=False):
         if not hasattr(self, 'rect'):
@@ -1306,7 +1360,12 @@ class Player(pygame.sprite.Sprite):
                     index = 0
                 else:
                     index = len(frames) - 1
+                    if self.dash_delay_triggered: # bug fix where the values wont reset if animation ended before reaching the max distance
+                        self.get_last_position = 0
+                        self.dash_start_time = 0
+                        self.dash_delay_triggered = False
                     return index, False  # finished (non-loop)
+                    
         return index, True
     
     def jump_animation(self):
@@ -2858,6 +2917,7 @@ class Player(pygame.sprite.Sprite):
 
         # print(current_time_ticks, self.immortality_duration, self.immortality_activated)
 
+                
     # Phased out code (since I don't use super.init)
     def update(self):
         """Base player update: handles universal effects."""
@@ -2953,7 +3013,8 @@ class Player(pygame.sprite.Sprite):
         self.calculate_basic_attack_interval()
 
 
-
+        # if self.perform_dash:
+        #     self.trigger_dash('attacking2', speed=20, max_distance=300, delay=500)
 
 
 
@@ -2990,18 +3051,4 @@ class Player(pygame.sprite.Sprite):
         # if dead, remove the hitbox (NOTE: when revived after death, hitbox still removed)
         
         # delete/remove/kill hero if died for too long
-            # self.dead_timer = self.dead_timer or pygame.time.get_ticks()
-            # if pygame.time.get_ticks() - self.dead_timer >= 2000000: # reset the game after 5s to remove bugs (intented for creeps only)
-            #     self.kill()
-            # else:
-            #     self.dead_timer = None
-                
-        # if self.is_dead:
-        #     return
-        # Handle global effects like stun or freeze
-        # if self.stunned or getattr(self, "frozen", False):
-        #     return
-
-        # pygame.draw.rect(screen, (255, 0, 0), self.rect)
-
-
+            # self.

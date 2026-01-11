@@ -446,6 +446,7 @@ class Phantom_Assassin(Player):
             self.player_atk1_index = 0
             self.player_atk1_index_flipped = 0    
 
+            
     def input(self, hotkey1, hotkey2, hotkey3, hotkey4, right_hotkey, left_hotkey, jump_hotkey, basic_hotkey, special_hotkey):
         """The most crucial part of collecting user input.
         - Processes player input each frame, handling movement and skill casting based on state."""
@@ -459,10 +460,10 @@ class Phantom_Assassin(Player):
         # ---------- Moving ----------
         if self.can_move():
             self.player_movement(right_hotkey, left_hotkey, jump_hotkey, current_time,
-                speed_modifier = 0,
-                special_active_speed = 0.1,
+                speed_modifier = 0.1,
+                special_active_speed = 0.2,
                 jump_force = self.jump_force,
-                jump_force_modifier = 0
+                jump_force_modifier = 0.04
                 )
             
         # ---------- Casting ----------
@@ -721,6 +722,8 @@ class Phantom_Assassin(Player):
         elif self.attacking1:
             self.atk1_animation()
         elif self.attacking2:
+            self.trigger_dash('attacking2', speed=20, max_distance=300, delay=500)
+
             self.atk2_animation()
         elif self.attacking3:
             self.atk3_animation()
@@ -730,6 +733,8 @@ class Phantom_Assassin(Player):
             self.basic_animation()
         else:
             self.simple_idle_animation(RUNNING_ANIMATION_SPEED)
+            
+        # print(self.dash_delay_triggered)
 
         # Apply gravity
         self.y_velocity += DEFAULT_GRAVITY

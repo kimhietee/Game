@@ -2000,14 +2000,14 @@ Flower Locket: 12% hp regen, 12% mana regen
 Energy Booster: 3 str flat, 3 int flat, 3 agi flat
 '''
 HERO_INFO = { # Agility on display based on total damage around 5-6 seconds, compared with data is above forest ranger class
-    "Fire Wizard": "Strength: 40, Intelligence: 40, Agility: 26, , Trait: 20% spell dmg",
-    "Wanderer Magician": "Strength: 40, Intelligence: 36, Agility: 37, , Trait: 20%->30% mana, regen",
-    "Fire Knight": "Strength: 42, Intelligence: 36, Agility: 33, , Trait: 15% hp regen",
-    "Wind Hashashin": "Strength: 38, Intelligence: 40, Agility: 24, , Trait: 15% mana, reduce",
-    "Water Princess": "Strength: 40, Intelligence: 48, Agility: 20, , Trait: 15%->20% mana, cost/delay",
-    "Forest Ranger": "Strength: 32, Intelligence: 52, Agility: 30, , Trait: 10% lifesteal, 20% atk speed, 200%+ mana refund",
-    "Yurei": "Strength: 36, Intelligence: 40, Agility: 37, , Trait: 15% cd reduce",
-    "Chthulu": "Strength: 40, Intelligence: 40, Agility: 25, , Trait: 5-10% stat,potency",
+    "Fire Wizard": "Strength: 40, Intelligence: 40, Agility: 26, , Trait: 20% Spell Damage",
+    "Wanderer Magician": "Strength: 40, Intelligence: 36, Agility: 37, , Trait: 20%->30% Mana, Regen",
+    "Fire Knight": "Strength: 42, Intelligence: 36, Agility: 33, , Trait: 15% Health Regen",
+    "Wind Hashashin": "Strength: 38, Intelligence: 40, Agility: 24, , Trait: 15% Mana, Reduction",
+    "Water Princess": "Strength: 40, Intelligence: 48, Agility: 20, , Trait: 15%/20% Mana, Cost and Delay",
+    "Forest Ranger": "Strength: 32, Intelligence: 52, Agility: 30, , Trait: 15% Lifesteal, 20% Base Attack Speed, 200%+ Mana Refund",
+    "Yurei": "Strength: 36, Intelligence: 40, Agility: 37, , Trait: 15% Cooldown Reduction",
+    "Chthulu": "Strength: 40, Intelligence: 40, Agility: 25, , Trait: 5%/10% Stat,Potency",
     "Phantom Assassin": "Strength: 40, Intelligence: 40, Agility: 30, , Trait: 0",
 }
 
@@ -2793,7 +2793,7 @@ def player_selection():
     while True:
         if immediate_run: # DEV OPTION ONLY
             PLAYER_1_SELECTED_HERO = Phantom_Assassin
-            PLAYER_2_SELECTED_HERO = Fire_Knight
+            PLAYER_2_SELECTED_HERO = Wanderer_Magician
             map_selected = Animate_BG.dark_forest_bg # Default
             bot = create_bot(Wanderer_Magician, hero1, hero1) if global_vars.SINGLE_MODE_ACTIVE else None
             player_1_choose = False

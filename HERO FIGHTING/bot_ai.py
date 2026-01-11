@@ -1427,7 +1427,7 @@ def create_bot(selected_hero, player_type, enemy):
                     }
                 },
 
-                'Onre': {
+                'Yurei': {
                     'default_timer': 1,
                     'timer_slow_decrease': 2,
 
@@ -1658,7 +1658,7 @@ def create_bot(selected_hero, player_type, enemy):
                         }
                     },
                     'basic_attack': {
-                        'atk_range': 70,
+                        'atk_range': 40,
                         'min_cast_range': 30
                     }
                 },
@@ -1889,8 +1889,8 @@ def create_bot(selected_hero, player_type, enemy):
                 self.hero_bot = 'Water_Princess'
             elif selected_hero.__name__ == 'Forest_Ranger' and 'Forest_Ranger' in self.hero_data:
                 self.hero_bot = 'Forest_Ranger'
-            elif selected_hero.__name__ == 'Onre' and 'Onre' in self.hero_data:
-                self.hero_bot = 'Onre'
+            elif selected_hero.__name__ == 'Yurei' and 'Yurei' in self.hero_data:
+                self.hero_bot = 'Yurei'
             elif selected_hero.__name__ == 'Chthulu' and 'Chthulu' in self.hero_data:
                 self.hero_bot = 'Chthulu'
             else:

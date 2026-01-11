@@ -464,6 +464,8 @@ class Fire_Knight(Player):
         # self.health_detect = 0
 
         #health = 20, if health > prev health = prev health - health 
+        self.health_regen = self.health_regen + (self.health_regen*0.15)
+
 
     
     

@@ -975,7 +975,10 @@ class Wind_Hashashin(Player):
             self.distance_covered = 0
         # print(self.distance_covered)
         
-        
+    
+                    
+
+
     
     
     def update(self):

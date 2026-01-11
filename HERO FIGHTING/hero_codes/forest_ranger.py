@@ -103,9 +103,9 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
         self.base_attack_speed = 100
         self.base_attack_time = 1700
 
-        self.base_animation_speed = 120
-        self.min_animation_speed = 15
-        self.attack_speed_modifier = 1.2
+        self.base_animation_speed = 100
+        self.min_animation_speed = 10
+        self.attack_speed_modifier = 1.3
 
         self.health_regen = self.calculate_regen(self.base_health_regen, self.hp_regen_per_str, self.strength) #0.8 + 32 * 0.01 = 1.12
         self.mana_regen = self.calculate_regen(self.base_mana_regen, self.mana_regen_per_int, self.intelligence) #5.4 + 52 * 0.01 = 5.92
@@ -477,7 +477,7 @@ class Forest_Ranger(Player): #NEXT WORK ON THE SPRITES THEN COPY EVERYTHING SINC
         # Trait: + 20% attack speed
         self.basic_attack_animation_speed = self.basic_attack_animation_speed-(self.basic_attack_animation_speed*0.2)
         # Trait: + 15% lifesteal
-        self.lifesteal = 0.1
+        self.lifesteal = 0.15
         # Trait : + (some values)% mana refund if hits enemy
 
         self.atk_hasted = False

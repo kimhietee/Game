@@ -722,7 +722,7 @@ class Phantom_Assassin(Player):
         elif self.attacking1:
             self.atk1_animation()
         elif self.attacking2:
-            self.trigger_dash('attacking2', speed=20, max_distance=300, delay=500)
+            self.trigger_dash('attacking2', speed=20, max_distance=200, delay=500)
 
             self.atk2_animation()
         elif self.attacking3:
@@ -733,6 +733,10 @@ class Phantom_Assassin(Player):
             self.basic_animation()
         else:
             self.simple_idle_animation(RUNNING_ANIMATION_SPEED)
+
+        # dash fix
+        if not self.attacking2:
+            self.reset_dash()
             
         # print(self.dash_delay_triggered)
 

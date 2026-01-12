@@ -461,14 +461,13 @@ class Player(pygame.sprite.Sprite):
 
 
         self.get_last_position = 0
+        self.dash_distance_covered = 0
         self.dash_start_time = 0
         self.dash_delay_triggered = False
         self.perform_dash = False
 
-    def activate_dash(self):
-        self.perform_dash = True
-    def deactivate_dash(self):
-        self.activate_dash = False
+        self.DEBUG_DASH = True
+
 
 
     def trigger_dash(self, attacking:str, speed:int, max_distance:int, delay:int=0, facing:bool=True, forced:tuple[bool | str]=(False, 'left')):
@@ -482,8 +481,9 @@ class Player(pygame.sprite.Sprite):
             forced                         - If forced is provided, choose direction as tuple.
         """
         current_time = pygame.time.get_ticks()
+        self.running = False
 
-        if self.get_last_position == 0:
+        if self.get_last_position == 0 and not self.dash_delay_triggered:
             self.get_last_position = self.x_pos
             self.dash_start_time = pygame.time.get_ticks()
         
@@ -491,28 +491,116 @@ class Player(pygame.sprite.Sprite):
 
         if not self.dash_delay_triggered:
             if current_time - self.dash_start_time < delay:
-                print('nope')
+                # print('nope')
                 return
             else:
-                print('SET TO TRUE')
+                # print('SET TO TRUE')
                 self.dash_delay_triggered = True
         else:
 
             get_current_position = self.x_pos
-            dash_distance_covered = abs(get_current_position - self.get_last_position)
-            if dash_distance_covered >= max_distance:
+            self.dash_distance_covered = abs(get_current_position - self.get_last_position)
+            if self.dash_distance_covered >= max_distance:
                 self.get_last_position = 0
                 self.dash_start_time = 0
                 self.dash_delay_triggered = False
-                print('end')
+                self.dash_distance_covered = 0
+                # print('end')
                 setattr(self, attacking, False)
             else:
                 if facing:
                     self.x_pos += (speed if self.facing_right else -speed)
                 elif forced[0]:
                     self.x_pos += (-speed if forced[1] == 'left' else speed)
-            print(dash_distance_covered >= max_distance, 'vro')
+            # print(dash_distance_covered >= max_distance, 'vro')
             # print(self.get_last_position, get_current_position, dash_distance_covered)
+
+    def reset_dash(self):
+        self.get_last_position = 0
+        self.dash_start_time = 0
+        self.dash_delay_triggered = False
+        self.dash_distance_covered = 0
+
+
+    # def trigger_dash(
+    #     self,
+    #     attacking: str,
+    #     speed: int,
+    #     max_distance: int,
+    #     delay: int = 0,
+    #     facing: bool = True,
+    #     forced: tuple[bool | str] = (False, 'left')
+    # ):
+    #     current_time = pygame.time.get_ticks()
+    #     self.running = False
+
+    #     if self.DEBUG_DASH:
+    #         print("\n--- DASH UPDATE ---")
+    #         print(f"time={current_time}  x_pos={self.x_pos}")
+
+    #     # Dash start
+    #     if self.get_last_position == 0:
+    #         self.get_last_position = self.x_pos
+    #         self.dash_start_time = current_time
+
+    #         if self.DEBUG_DASH:
+    #             print("DASH START")
+    #             print(f"  start_pos={self.get_last_position}")
+    #             print(f"  facing_right={self.facing_right}")
+
+    #     # Delay phase
+    #     if not self.dash_delay_triggered:
+    #         elapsed = current_time - self.dash_start_time
+
+    #         if self.DEBUG_DASH:
+    #             print("DASH DELAY")
+    #             print(f"  elapsed={elapsed} / delay={delay}")
+
+    #         if elapsed < delay:
+    #             return
+    #         else:
+    #             self.dash_delay_triggered = True
+    #             if self.DEBUG_DASH:
+    #                 print("DELAY FINISHED → DASH ACTIVE")
+
+    #     # Dash movement phase
+    #     else:
+    #         get_current_position = self.x_pos
+    #         self.dash_distance_covered = abs(
+    #             get_current_position - self.get_last_position
+    #         )
+
+    #         if self.DEBUG_DASH:
+    #             print("DASH MOVING")
+    #             print(f"  current_pos={get_current_position}")
+    #             print(f"  start_pos={self.get_last_position}")
+    #             print(f"  distance={self.dash_distance_covered} / {max_distance}")
+
+    #         # Dash end
+    #         if self.dash_distance_covered >= max_distance:
+    #             if self.DEBUG_DASH:
+    #                 print("DASH END")
+
+    #             self.get_last_position = 0
+    #             self.dash_start_time = 0
+    #             self.dash_delay_triggered = False
+    #             self.dash_distance_covered = 0
+    #             setattr(self, attacking, False)
+    #             return
+
+    #         # Dash movement
+    #         if facing:
+    #             move = speed if self.facing_right else -speed
+    #         elif forced[0]:
+    #             move = -speed if forced[1] == 'left' else speed
+    #         else:
+    #             move = 0
+
+    #         self.x_pos += move
+
+    #         if self.DEBUG_DASH:
+    #             print(f"  MOVE={move} → new_x={self.x_pos}")
+
 
     def display_damage(self, damage, interval=30, color=(255, 0, 0), size=None, health_modify=False, mana_modify=False):
         if not hasattr(self, 'rect'):
@@ -1364,6 +1452,7 @@ class Player(pygame.sprite.Sprite):
                         self.get_last_position = 0
                         self.dash_start_time = 0
                         self.dash_delay_triggered = False
+                        self.dash_distance_covered = 0
                     return index, False  # finished (non-loop)
                     
         return index, True

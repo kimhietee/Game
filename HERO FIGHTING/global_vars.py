@@ -12,12 +12,12 @@ height = 720 #// 1.5
 icon = pygame.image.load(resource_path('assets/icons/miku.png'))      
 FPS = 60
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((width, height))
+# screen = pygame.display.set_mode((width, height))
 # screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 
 # REAL IS BELOW VVVVVV
 # screen = pygame.display.set_mode((width, height), pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SCALED, vsync=1)
-# screen = pygame.display.set_mode((width, height), pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SCALED | pygame.FULLSCREEN, vsync=1) # FULLSCREEN !!!
+screen = pygame.display.set_mode((width, height), pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.SCALED | pygame.FULLSCREEN, vsync=1) # FULLSCREEN !!!
 
 # display_size = pygame.display.get_desktop_sizes()
 # width,height = display_size[0][0]-50, display_size[0][1]-50

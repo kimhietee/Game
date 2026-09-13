@@ -171,6 +171,7 @@ class NetClient:
             if msg is None:
                 self.phase = 'disconnected'
                 self._running = False
+                self.opponent_left = True  # signal game loop to exit cleanly
                 break
             message_type = msg.get('type')
             # print(message_type)

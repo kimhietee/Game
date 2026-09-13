@@ -1556,6 +1556,13 @@ def game(bg=None, net_client=None):
                 global_vars.active_net_client = None
                 # lobby('disconnected') 
                 return 'opponent_left'
+
+            # Safety net: detect silent disconnection (connection dropped without
+            # opponent_left message — e.g. host process killed, network failure)
+            if global_vars.active_net_client is not None and global_vars.active_net_client.phase == 'disconnected':
+                global_vars.active_net_client.disconnect()
+                global_vars.active_net_client = None
+                return 'opponent_left'
             
             if global_vars.active_net_client is not None and global_vars.active_net_client.phase == 'playing':
                 # ── Receive and apply opponent / authoritative state ──────────────
@@ -1720,6 +1727,8 @@ def game(bg=None, net_client=None):
             # main.hero2.health = 1 if not main.hero2.is_dead() else 0
             battle_end_result = battle_end(mouse_pos, mouse_press)
             pause_result = pause(mouse_pos, mouse_press)
+            if pause_result == 'opponent_left' or battle_end_result == 'opponent_left':
+                return 'opponent_left'
             if pause_result == 'back_to_menu' or battle_end_result == 'back_to_menu':
                 return 'back_to_menu'
             
@@ -1729,6 +1738,8 @@ def game(bg=None, net_client=None):
 
         else: # completely pause if only offline
             pause_result = pause(mouse_pos, mouse_press)
+            if pause_result == 'opponent_left' or battle_end_result == 'opponent_left':
+                return 'opponent_left'
             if pause_result == 'back_to_menu' or battle_end_result == 'back_to_menu':
                 return 'back_to_menu'
 
@@ -2009,14 +2020,9 @@ def pause(mouse_pos, mouse_press, font=None, default_size = ((width * DEFAULT_HE
             paused = False
             if global_vars.active_net_client is not None:
                 global_vars.active_net_client.disconnect()
-            if global_vars.active_net_client is not None and global_vars.active_net_client.opponent_left:
-                print(f'I am leaving good luck everybody')
-                print("Opponent left detected in player_selection")
+                global_vars.active_net_client = None
                 return 'opponent_left'
-           
-            else:
-                print('go to menu (offline mode)')
-                return 'back_to_menu'
+            return 'back_to_menu'
             
 
         if mouse_press[0] and resume_game.is_clicked(mouse_pos):

@@ -1192,6 +1192,9 @@ def game(bg=None, net_client=None):
     final_elapsed_time = None
     paused_start_time = None
     total_paused_duration = 0
+    global_vars.PAUSED = False
+    global_vars.PAUSED_TOTAL_DURATION = 0
+    global_vars.PAUSED_START = None
 
     #testing purposes
     #testing
@@ -1731,6 +1734,8 @@ def game(bg=None, net_client=None):
                 return 'opponent_left'
             if pause_result == 'back_to_menu' or battle_end_result == 'back_to_menu':
                 return 'back_to_menu'
+            if pause_result == 'restart':
+                return 'restart'
             
             # print(FPS)
 
@@ -1742,6 +1747,8 @@ def game(bg=None, net_client=None):
                 return 'opponent_left'
             if pause_result == 'back_to_menu' or battle_end_result == 'back_to_menu':
                 return 'back_to_menu'
+            if pause_result == 'restart':
+                return 'restart'
 
         
         

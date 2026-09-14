@@ -352,10 +352,8 @@ class Attacks:
     def reduce_cd(self, val=False):
         if val:
             # Reset cooldown: set last_used_time such that the attack is ready now
-            now = pygame.time.get_ticks()
-            # store raw timestamp and snapshot paused total
-            self._last_used_time = now - self.cooldown
-            self._last_used_paused_total = global_vars.PAUSED_TOTAL_DURATION
+            self._last_used_time = -self.cooldown
+            self._last_used_paused_total = 0
         return val
          
 
@@ -4033,7 +4031,7 @@ def player_selection(net_client=None):
                     while True:
                         game_end_result = fade(background, lambda: game(net_client=global_vars.active_net_client if global_vars.active_net_client else None)) #lez go it worked
                         # print('game end result from player_selection:', game_end_result)
-                        if game_end_result == "rematch":
+                        if game_end_result in ("rematch", "restart"):
                             continue
                         else:
                             # print('break!', game_end_result)

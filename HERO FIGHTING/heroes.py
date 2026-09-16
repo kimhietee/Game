@@ -951,10 +951,15 @@ class Attack_Display(pygame.sprite.Sprite): #The Attack_Display class should han
             health_cost_amount = damage_amount * self.who_attacks.health_cost
             self.who_attacks.take_damage(abs(health_cost_amount))
 
-        # spell lifesteal, health attacker only spells
-        if self.who_attacks.spell_lifesteal > 0 and not self.who_attacks.is_dead():
-            spell_lifesteal_amount = damage_amount * self.who_attacks.spell_lifesteal
-            self.who_attacks.take_heal(abs(spell_lifesteal_amount))
+        # spell lifesteal, heals attacker only on spells
+        if not self.is_basic_attack:
+            if self.who_attacks.spell_lifesteal > 0 and not self.who_attacks.is_dead():
+                spell_lifesteal_amount = damage_amount * self.who_attacks.spell_lifesteal
+                self.who_attacks.take_heal(abs(spell_lifesteal_amount))
+            elif self.who_attacks.spell_lifesteal < 0 and not self.who_attacks.is_dead():
+                # damages the attacker if spell lifesteal is less than 0
+                spell_lifesteal_amount = damage_amount * self.who_attacks.spell_lifesteal
+                self.who_attacks.take_damage(abs(spell_lifesteal_amount))
         
         
     def _apply_heal(self, heal_amount):

@@ -3933,7 +3933,7 @@ def show_dc_text(status=None, duration=5000):
 
 
 if __name__ == '__main__':
-    from heroes import lan_connect
+    from heroes import lan_connect      
     main_menu()
     menu()
 

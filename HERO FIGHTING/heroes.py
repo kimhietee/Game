@@ -1990,7 +1990,14 @@ for item in item_data["items"]:
     ))
 
 
-
+def get_items_by_names(names_list):
+    """Returns a list of cloned Item instances of the given item names."""
+    item_map = {item.name: item for item in items}
+    item_names = []
+    for name in names_list:
+        if name in item_map:
+            item_names.append(copy.copy(item_map[name]))
+    return item_names
 
 
 # items = [
@@ -3865,7 +3872,24 @@ def player_selection(net_client=None):
                         'Phantom_Assassin': Phantom_Assassin,
                     }
 
+                    
+
                     if global_vars.active_net_client is not None:
+
+                        # 1. Handle Random Items locally before sending
+                        if global_vars.active_net_client.my_player_type == 1:
+                            if global_vars.random_item_pick_p1:
+                                equipped_items.populate_random_items(MAX_ITEM)
+                            my_item_names = [sel.get_associated().name for sel in p1_items if sel.is_selected()]
+                        else:
+                            if global_vars.random_item_pick_p2:
+                                equipped_items_p2.populate_random_items(MAX_ITEM)
+                            my_item_names = [sel.get_associated().name for sel in p2_items if sel.is_selected()]
+                        # 2. Transmit hero + the final items (whether picked manually or randomly rolled)
+                        global_vars.active_net_client.send_hero_ready(my_hero_name, my_item_names)
+
+
+                        
                         # send map (P1 only)
                         if global_vars.active_net_client.my_player_type == 1:
                             _map_name = _bg_to_map_name.get(map_selected, 'dark_forest')
@@ -3880,7 +3904,12 @@ def player_selection(net_client=None):
                         my_hero_name = (PLAYER_1_SELECTED_HERO.__name__ 
                                         if global_vars.active_net_client.my_player_type == 1 
                                         else PLAYER_2_SELECTED_HERO.__name__)
-                        
+
+                        if global_vars.active_net_client.my_player_type == 1:
+                            my_item_names = [item.get_associated().name for item in p1_items if item.is_selected()]
+                        else:
+                            my_item_names = [item.get_associated().name for item in p2_items if item.is_selected()]
+
                         # send hero_ready, wait for both_ready
                         global_vars.active_net_client.send_hero_ready(my_hero_name)
                         result = wait_screen(lambda: global_vars.active_net_client.both_ready, text="Waiting for opponent...")
@@ -3908,10 +3937,17 @@ def player_selection(net_client=None):
                         result = wait_screen(lambda: global_vars.active_net_client.ready_to_battle, text="Waiting for opponent...")
                         if result == 'opponent_left':
                             return 'opponent_left'
+
+                        # Equip items for both heroes in LAN
+                        hero1.items = get_items_by_names(global_vars.active_net_client.p1_items)
+                        hero2.items = get_items_by_names(global_vars.active_net_client.p2_items)
+                        hero1.apply_item_bonuses()
+                        hero2.apply_item_bonuses()
                         
 
-                    else:
-                        # ── Local mode (unchanged) ──
+
+
+                    else: # Local mode 
                         if global_vars.active_net_client is None or global_vars.active_net_client.my_player_type == 1:
                             hero1 = PLAYER_1_SELECTED_HERO(PLAYER_1, hero2) if not global_vars.random_pick_p1 else random.choice(heroes)(PLAYER_1, hero2)
                         if global_vars.active_net_client is None or global_vars.active_net_client.my_player_type == 2:
@@ -3921,123 +3957,123 @@ def player_selection(net_client=None):
                         # hero3 = Wind_Hashashin(PLAYER_1, hero2)
                     
 
-                    if global_vars.SINGLE_MODE_ACTIVE:
-                        if global_vars.HERO1_BOT:
-                            bot1_class = create_bot(PLAYER_1_SELECTED_HERO if not global_vars.random_pick_p1 else random.choice(heroes), PLAYER_1, hero2)
-                            hero1 = bot1_class(hero2, hero2)  # pass live hero2 reference
+                        if global_vars.SINGLE_MODE_ACTIVE:
+                            if global_vars.HERO1_BOT:
+                                bot1_class = create_bot(PLAYER_1_SELECTED_HERO if not global_vars.random_pick_p1 else random.choice(heroes), PLAYER_1, hero2)
+                                hero1 = bot1_class(hero2, hero2)  # pass live hero2 reference
 
-                        bot2_class = create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, hero1)
-                        hero2 = bot2_class(hero1, hero1)  # pass live hero1 reference (first is for bot reference, second is for player reference)
-                        
-                        if global_vars.toggle_hero3: # Create a third enemy (hero3) for single player mode
-                            bot3_class = create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, hero1)
-                            hero3 = bot3_class(hero1, hero1)  # pass live hero1 reference (both enemies target the player)
-                            # Position hero3 slightly offset from hero2 so they don't overlap
-                            from global_vars import DEFAULT_X_POS, DEFAULT_Y_POS
-                            hero3.x_pos = DEFAULT_X_POS - 50  # Offset hero3 slightly to the left of hero2
-                            hero3.y_pos = DEFAULT_Y_POS
-                            hero3.player_1_y += 150
-                            hero3.player_2_y += 150 
+                            bot2_class = create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, hero1)
+                            hero2 = bot2_class(hero1, hero1)  # pass live hero1 reference (first is for bot reference, second is for player reference)
                             
+                            if global_vars.toggle_hero3: # Create a third enemy (hero3) for single player mode
+                                bot3_class = create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, hero1)
+                                hero3 = bot3_class(hero1, hero1)  # pass live hero1 reference (both enemies target the player)
+                                # Position hero3 slightly offset from hero2 so they don't overlap
+                                from global_vars import DEFAULT_X_POS, DEFAULT_Y_POS
+                                hero3.x_pos = DEFAULT_X_POS - 50  # Offset hero3 slightly to the left of hero2
+                                hero3.y_pos = DEFAULT_Y_POS
+                                hero3.player_1_y += 150
+                                hero3.player_2_y += 150 
+                                
+                            if global_vars.HERO1_BOT:
+                                hero1.player = hero2 # modify hero1 live reference for hero2 to real referenced object
 
-                        if global_vars.HERO1_BOT:
-                            hero1.player = hero2 # modify hero1 live reference for hero2 to real referenced object
-
-                    for item in equipped_items.item:
-                        # if item.is_selected():
-                            hero1.items.append(item.get_associated())
-
-                    for item in equipped_items_p2.item:
-                        # if item.is_selected():
-                            hero2.items.append(item.get_associated())
-                            # Also apply to hero3 in single player mode
-                            if global_vars.SINGLE_MODE_ACTIVE:
-                                if global_vars.toggle_hero3:
-                                    hero3.items.append(item.get_associated())
-
-
-                    # === AUTO-EQUIP RANDOM ITEMS IF TOGGLE IS ON ===
-                    if global_vars.random_item_pick_p1:
-                        equipped_items.populate_random_items(MAX_ITEM)
                     
-                    if global_vars.random_item_pick_p2:
-                        equipped_items_p2.populate_random_items(MAX_ITEM)
+                        for item in equipped_items.item:
+                            # if item.is_selected():
+                                hero1.items.append(item.get_associated())
 
-                    hero1_group = pygame.sprite.Group()
-                    # hero1_group.add(hero3)
+                        for item in equipped_items_p2.item:
+                            # if item.is_selected():
+                                hero2.items.append(item.get_associated())
+                                # Also apply to hero3 in single player mode
+                                if global_vars.SINGLE_MODE_ACTIVE:
+                                    if global_vars.toggle_hero3:
+                                        hero3.items.append(item.get_associated())
 
-                    hero2_group = pygame.sprite.Group()
-                    
 
-                    if global_vars.SINGLE_MODE_ACTIVE:
-                        if global_vars.toggle_hero3:
-                            hero2_group.add(hero3)
+                        # === AUTO-EQUIP RANDOM ITEMS IF TOGGLE IS ON ===
+                        if global_vars.random_item_pick_p1:
+                            equipped_items.populate_random_items(MAX_ITEM)
+                        
+                        if global_vars.random_item_pick_p2:
+                            equipped_items_p2.populate_random_items(MAX_ITEM)
 
-                    # ------------------------------
-                    # --- Create bots for both teams ---
-                    hero1_group.add(
-                        *(create_bot(PLAYER_1_SELECTED_HERO if not global_vars.random_pick_p1 else random.choice(heroes), PLAYER_1, [])(None, []) for _ in range(0))
-                    )
+                        hero1_group = pygame.sprite.Group()
+                        # hero1_group.add(hero3)
 
-                    hero2_group.add(
-                        *(create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, [])(None, []) for _ in range(0))
-                    )
+                        hero2_group = pygame.sprite.Group()
+                        
 
-                    hero1_group.add(hero1)
-                    hero2_group.add(hero2)
-                    # --- Assign enemies ---
-                    for h in hero1_group:
-                        h.enemy = list(hero2_group)
-                    for h in hero2_group:
-                        h.enemy = list(hero1_group)
+                        if global_vars.SINGLE_MODE_ACTIVE:
+                            if global_vars.toggle_hero3:
+                                hero2_group.add(hero3)
 
-                    # --- Apply items to team 1 ---
-                    for h in hero1_group:
-                        # If all_items is on and this is a bot, don't clear/override items
-                        # uncomment to allow player1 bots to have same settings as player2 bots
-                        # if not (global_vars.all_items and hasattr(h, 'botkey_skill1')):
-                        #     h.items = []
-                        h.items = []
-                    for item in p1_items:
-                        if item.is_selected():
-                            for h in hero1_group:
-                                # If all_items is on and this is a bot, skip (it already has all items)
-                                if not (global_vars.all_items and hasattr(h, 'botkey_skill1')):
-                                    h.items.append(copy.copy(item.get_associated()))
-                    for h in hero1_group:
-                        h.apply_item_bonuses()
+                        # ------------------------------
+                        # --- Create bots for both teams ---
+                        hero1_group.add(
+                            *(create_bot(PLAYER_1_SELECTED_HERO if not global_vars.random_pick_p1 else random.choice(heroes), PLAYER_1, [])(None, []) for _ in range(0))
+                        )
 
-                    # --- Apply items to team 2 ---
-                    for h in hero2_group:
-                        # If all_items is on and this is a bot, don't clear/override items
-                        if not (global_vars.all_items and hasattr(h, 'botkey_skill1')):
+                        hero2_group.add(
+                            *(create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, [])(None, []) for _ in range(0))
+                        )
+
+                        hero1_group.add(hero1)
+                        hero2_group.add(hero2)
+                        # --- Assign enemies ---
+                        for h in hero1_group:
+                            h.enemy = list(hero2_group)
+                        for h in hero2_group:
+                            h.enemy = list(hero1_group)
+
+                        # --- Apply items to team 1 ---
+                        for h in hero1_group:
+                            # If all_items is on and this is a bot, don't clear/override items
+                            # uncomment to allow player1 bots to have same settings as player2 bots
+                            # if not (global_vars.all_items and hasattr(h, 'botkey_skill1')):
+                            #     h.items = []
                             h.items = []
+                        for item in p1_items:
+                            if item.is_selected():
+                                for h in hero1_group:
+                                    # If all_items is on and this is a bot, skip (it already has all items)
+                                    if not (global_vars.all_items and hasattr(h, 'botkey_skill1')):
+                                        h.items.append(copy.copy(item.get_associated()))
+                        for h in hero1_group:
+                            h.apply_item_bonuses()
 
-                    for item in p2_items:
-                        if item.is_selected():
-                            for h in hero2_group:
-                                # If all_items is on and this is a bot, skip (it already has all items)
-                                if not (global_vars.all_items and hasattr(h, 'botkey_skill1')):
-                                    h.items.append(copy.copy(item.get_associated()))
+                        # --- Apply items to team 2 ---
+                        for h in hero2_group:
+                            # If all_items is on and this is a bot, don't clear/override items
+                            if not (global_vars.all_items and hasattr(h, 'botkey_skill1')):
+                                h.items = []
 
-                    for h in hero2_group:
-                        h.apply_item_bonuses()
+                        for item in p2_items:
+                            if item.is_selected():
+                                for h in hero2_group:
+                                    # If all_items is on and this is a bot, skip (it already has all items)
+                                    if not (global_vars.all_items and hasattr(h, 'botkey_skill1')):
+                                        h.items.append(copy.copy(item.get_associated()))
 
-                    pygame.mixer.music.fadeout(1000)
-                    pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
+                        for h in hero2_group:
+                            h.apply_item_bonuses()
 
-                    reset_all()
-                    
-                    while True:
-                        game_end_result = fade(background, lambda: game(net_client=global_vars.active_net_client if global_vars.active_net_client else None)) #lez go it worked
-                        # print('game end result from player_selection:', game_end_result)
-                        if game_end_result in ("rematch", "restart"):
-                            continue
-                        else:
-                            # print('break!', game_end_result)
-                            break
+                        pygame.mixer.music.fadeout(1000)
+                        pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
 
-                    return game_end_result
+                        reset_all()
+                        
+                        while True:
+                            game_end_result = fade(background, lambda: game(net_client=global_vars.active_net_client if global_vars.active_net_client else None)) #lez go it worked
+                            # print('game end result from player_selection:', game_end_result)
+                            if game_end_result in ("rematch", "restart"):
+                                continue
+                            else:
+                                # print('break!', game_end_result)
+                                break
+
+                        return game_end_result
 
         pygame.display.update()
         clock.tick(FPS)

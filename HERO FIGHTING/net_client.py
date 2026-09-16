@@ -24,6 +24,8 @@ class NetClient:
         self.map_selected = None
         self.p1_hero = None
         self.p2_hero = None
+        self.p1_items = [] # item equipped
+        self.p2_items = []
         self.p1_hero_ready = False
         self.p2_hero_ready = False
         self.both_ready = False
@@ -94,8 +96,8 @@ class NetClient:
     def send_map(self, map_name):
         send_msg(self.sock, {'type': 'set_map', 'map': map_name})
 
-    def send_hero_ready(self, hero_name):
-        send_msg(self.sock, {'type': 'hero_ready', 'hero': hero_name})
+    def send_hero_ready(self, hero_name, item_names):
+        send_msg(self.sock, {'type': 'hero_ready', 'hero': hero_name, 'items': item_names or []})
 
     def send_load_opponent_hero_ready(self, hero_name):
         send_msg(self.sock, {'type': 'load_opponent_hero', 'hero': hero_name})
@@ -197,6 +199,8 @@ class NetClient:
             elif message_type == 'both_ready':
                 self.p1_hero = msg['p1_hero']
                 self.p2_hero = msg['p2_hero']
+                self.p1_items = msg.get('p1_items', [])
+                self.p2_items = msg.get('p2_items', [])
                 self.map_selected = msg['map']
                 # print('both ready :)')
                 self.both_ready = True

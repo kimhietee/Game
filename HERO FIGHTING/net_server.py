@@ -24,6 +24,8 @@ lobby = {
     'map': None,          # chosen by host (player 1)
     'p1_hero': None,      # hero name confirmed by p1
     'p2_hero': None,      # hero name confirmed by p2
+    'p1_items': [],
+    'p2_items': [],
     'p1_ready': False,
     'p2_ready': False,
     'p1_opponent_hero_ready': False, # check if p1 loads the p2 successfully

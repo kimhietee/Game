@@ -96,7 +96,7 @@ class NetClient:
     def send_map(self, map_name):
         send_msg(self.sock, {'type': 'set_map', 'map': map_name})
 
-    def send_hero_ready(self, hero_name, item_names):
+    def send_hero_ready(self, hero_name, item_names=None):
         send_msg(self.sock, {'type': 'hero_ready', 'hero': hero_name, 'items': item_names or []})
 
     def send_load_opponent_hero_ready(self, hero_name):

@@ -94,12 +94,15 @@ def handle_client(conn, player_type):
                 broadcast({'type': 'map_set', 'map': msg['map']})
             elif message_type == 'hero_ready':
                 lobby[f'p{player_type}_hero'] = msg['hero']
+                lobby[f'p{player_type}_items'] = msg.get('items', [])  # store item selections
                 lobby[f'p{player_type}_ready'] = True
                 broadcast({'type': 'hero_confirmed', 'player': player_type, 'hero': msg['hero']})                
                 if lobby['p1_ready'] and lobby['p2_ready']:
                     broadcast({'type': 'both_ready',
                                'p1_hero': lobby['p1_hero'],
                                'p2_hero': lobby['p2_hero'],
+                               'p1_items': lobby['p1_items'],  # broadcast items
+                               'p2_items': lobby['p2_items'],  # broadcast items
                                'map': lobby['map']})
                     lobby['p1_ready'] = False
                     lobby['p2_ready'] = False

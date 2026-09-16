@@ -3841,7 +3841,8 @@ def player_selection(net_client=None):
                 
             if go:
                 fight.draw(screen, mouse_pos)
-                if pygame.mouse.get_pressed()[0] and fight.is_clicked(mouse_pos) or keys[pygame.K_SPACE] or immediate_run:
+                is_p2_lan = global_vars.active_net_client is not None and global_vars.active_net_client.my_player_type == 2
+                if is_p2_lan or (pygame.mouse.get_pressed()[0] and fight.is_clicked(mouse_pos)) or keys[pygame.K_SPACE] or immediate_run:
                     
                     # ── Phase 2: LAN host sends map choice ──
                     # if global_vars.active_net_client is not None and global_vars.active_net_client.my_player_type == 1:
@@ -3876,20 +3877,6 @@ def player_selection(net_client=None):
 
                     if global_vars.active_net_client is not None:
 
-                        # 1. Handle Random Items locally before sending
-                        if global_vars.active_net_client.my_player_type == 1:
-                            if global_vars.random_item_pick_p1:
-                                equipped_items.populate_random_items(MAX_ITEM)
-                            my_item_names = [sel.get_associated().name for sel in p1_items if sel.is_selected()]
-                        else:
-                            if global_vars.random_item_pick_p2:
-                                equipped_items_p2.populate_random_items(MAX_ITEM)
-                            my_item_names = [sel.get_associated().name for sel in p2_items if sel.is_selected()]
-                        # 2. Transmit hero + the final items (whether picked manually or randomly rolled)
-                        global_vars.active_net_client.send_hero_ready(my_hero_name, my_item_names)
-
-
-                        
                         # send map (P1 only)
                         if global_vars.active_net_client.my_player_type == 1:
                             _map_name = _bg_to_map_name.get(map_selected, 'dark_forest')
@@ -3905,13 +3892,18 @@ def player_selection(net_client=None):
                                         if global_vars.active_net_client.my_player_type == 1 
                                         else PLAYER_2_SELECTED_HERO.__name__)
 
+                        # Handle random item selection BEFORE collecting names, then send
                         if global_vars.active_net_client.my_player_type == 1:
+                            if global_vars.random_item_pick_p1:
+                                equipped_items.populate_random_items(MAX_ITEM)
                             my_item_names = [item.get_associated().name for item in p1_items if item.is_selected()]
                         else:
+                            if global_vars.random_item_pick_p2:
+                                equipped_items_p2.populate_random_items(MAX_ITEM)
                             my_item_names = [item.get_associated().name for item in p2_items if item.is_selected()]
 
-                        # send hero_ready, wait for both_ready
-                        global_vars.active_net_client.send_hero_ready(my_hero_name)
+                        # send hero + items, wait for both_ready
+                        global_vars.active_net_client.send_hero_ready(my_hero_name, my_item_names)
                         result = wait_screen(lambda: global_vars.active_net_client.both_ready, text="Waiting for opponent...")
                         if result == 'opponent_left':
                             return 'opponent_left'
@@ -3999,35 +3991,37 @@ def player_selection(net_client=None):
                         if global_vars.random_item_pick_p2:
                             equipped_items_p2.populate_random_items(MAX_ITEM)
 
-                        hero1_group = pygame.sprite.Group()
-                        # hero1_group.add(hero3)
+                    # --- Create sprite groups (shared by LAN and local) ---
+                    hero1_group = pygame.sprite.Group()
+                    # hero1_group.add(hero3)
 
-                        hero2_group = pygame.sprite.Group()
-                        
+                    hero2_group = pygame.sprite.Group()
+                    
 
-                        if global_vars.SINGLE_MODE_ACTIVE:
-                            if global_vars.toggle_hero3:
-                                hero2_group.add(hero3)
+                    if global_vars.active_net_client is None and global_vars.SINGLE_MODE_ACTIVE:
+                        if global_vars.toggle_hero3:
+                            hero2_group.add(hero3)
 
-                        # ------------------------------
-                        # --- Create bots for both teams ---
-                        hero1_group.add(
-                            *(create_bot(PLAYER_1_SELECTED_HERO if not global_vars.random_pick_p1 else random.choice(heroes), PLAYER_1, [])(None, []) for _ in range(0))
-                        )
+                    # ------------------------------
+                    # --- Create bots for both teams ---
+                    hero1_group.add(
+                        *(create_bot(PLAYER_1_SELECTED_HERO if not global_vars.random_pick_p1 else random.choice(heroes), PLAYER_1, [])(None, []) for _ in range(0))
+                    )
 
-                        hero2_group.add(
-                            *(create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, [])(None, []) for _ in range(0))
-                        )
+                    hero2_group.add(
+                        *(create_bot(PLAYER_2_SELECTED_HERO if not global_vars.random_pick_p2 else random.choice(heroes), PLAYER_2, [])(None, []) for _ in range(0))
+                    )
 
-                        hero1_group.add(hero1)
-                        hero2_group.add(hero2)
-                        # --- Assign enemies ---
-                        for h in hero1_group:
-                            h.enemy = list(hero2_group)
-                        for h in hero2_group:
-                            h.enemy = list(hero1_group)
+                    hero1_group.add(hero1)
+                    hero2_group.add(hero2)
+                    # --- Assign enemies ---
+                    for h in hero1_group:
+                        h.enemy = list(hero2_group)
+                    for h in hero2_group:
+                        h.enemy = list(hero1_group)
 
-                        # --- Apply items to team 1 ---
+                    if global_vars.active_net_client is None:
+                        # --- Apply items to team 1 (local mode only; LAN uses get_items_by_names) ---
                         for h in hero1_group:
                             # If all_items is on and this is a bot, don't clear/override items
                             # uncomment to allow player1 bots to have same settings as player2 bots
@@ -4043,7 +4037,7 @@ def player_selection(net_client=None):
                         for h in hero1_group:
                             h.apply_item_bonuses()
 
-                        # --- Apply items to team 2 ---
+                        # --- Apply items to team 2 (local mode only) ---
                         for h in hero2_group:
                             # If all_items is on and this is a bot, don't clear/override items
                             if not (global_vars.all_items and hasattr(h, 'botkey_skill1')):
@@ -4059,21 +4053,21 @@ def player_selection(net_client=None):
                         for h in hero2_group:
                             h.apply_item_bonuses()
 
-                        pygame.mixer.music.fadeout(1000)
-                        pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
+                    pygame.mixer.music.fadeout(1000)
+                    pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
 
-                        reset_all()
-                        
-                        while True:
-                            game_end_result = fade(background, lambda: game(net_client=global_vars.active_net_client if global_vars.active_net_client else None)) #lez go it worked
-                            # print('game end result from player_selection:', game_end_result)
-                            if game_end_result in ("rematch", "restart"):
-                                continue
-                            else:
-                                # print('break!', game_end_result)
-                                break
+                    reset_all()
+                    
+                    while True:
+                        game_end_result = fade(background, lambda: game(net_client=global_vars.active_net_client if global_vars.active_net_client else None)) #lez go it worked
+                        # print('game end result from player_selection:', game_end_result)
+                        if game_end_result in ("rematch", "restart"):
+                            continue
+                        else:
+                            # print('break!', game_end_result)
+                            break
 
-                        return game_end_result
+                    return game_end_result
 
         pygame.display.update()
         clock.tick(FPS)

@@ -1078,6 +1078,7 @@ class Wind_Hashashin(Player):
                                 repeat_animation=1,
                                 speed=0 if self.facing_right else 0,
                                 dmg=i[4],
+                                moving=i[1],
                                 final_dmg=i[5],
                                 who_attacks=self,
                                 who_attacked=self.enemy,

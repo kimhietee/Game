@@ -421,20 +421,41 @@ class Attacks:
         # Determine the key to display based on the player type
         keybinds=key.read_settings()
         key_text = ""
-        if player_type == 1:
-            key_text = display_inputs(keybinds['skill_1_p1'][1]) if self.skill_rect == hero1.skill_1_rect else \
-                    display_inputs(keybinds['skill_2_p1'][1]) if self.skill_rect == hero1.skill_2_rect else \
-                    display_inputs(keybinds['skill_3_p1'][1]) if self.skill_rect == hero1.skill_3_rect else \
-                    display_inputs(keybinds['skill_4_p1'][1]) if self.skill_rect == hero1.skill_4_rect else \
-                    display_inputs(keybinds['basic_atk_p1'][1]) if self.skill_rect == hero1.basic_icon_rect else \
-                    display_inputs(keybinds['sp_skill_p1'][1]) if self.skill_rect == hero1.special_rect else ""
-        elif player_type == 2:
-            key_text = display_inputs(keybinds['skill_1_p2'][1]) if self.skill_rect == hero2.skill_1_rect else \
-                    display_inputs(keybinds['skill_2_p2'][1]) if self.skill_rect == hero2.skill_2_rect else \
-                    display_inputs(keybinds['skill_3_p2'][1]) if self.skill_rect == hero2.skill_3_rect else \
-                    display_inputs(keybinds['skill_4_p2'][1]) if self.skill_rect == hero2.skill_4_rect else \
-                    display_inputs(keybinds['basic_atk_p2'][1]) if self.skill_rect == hero2.basic_icon_rect else \
-                    display_inputs(keybinds['sp_skill_p2'][1]) if self.skill_rect == hero2.special_rect else ""
+        is_lan = global_vars.active_net_client is not None
+        if is_lan:
+            my_type = global_vars.active_net_client.my_player_type
+            # In LAN mode, enemy keybind does not show at all
+            if player_type == my_type:
+                # Local player always uses Player 1 keybinds
+                if player_type == 1:
+                    key_text = display_inputs(keybinds['skill_1_p1'][1]) if self.skill_rect == hero1.skill_1_rect else \
+                            display_inputs(keybinds['skill_2_p1'][1]) if self.skill_rect == hero1.skill_2_rect else \
+                            display_inputs(keybinds['skill_3_p1'][1]) if self.skill_rect == hero1.skill_3_rect else \
+                            display_inputs(keybinds['skill_4_p1'][1]) if self.skill_rect == hero1.skill_4_rect else \
+                            display_inputs(keybinds['basic_atk_p1'][1]) if self.skill_rect == hero1.basic_icon_rect else \
+                            display_inputs(keybinds['sp_skill_p1'][1]) if self.skill_rect == hero1.special_rect else ""
+                elif player_type == 2:
+                    key_text = display_inputs(keybinds['skill_1_p1'][1]) if self.skill_rect == hero2.skill_1_rect else \
+                            display_inputs(keybinds['skill_2_p1'][1]) if self.skill_rect == hero2.skill_2_rect else \
+                            display_inputs(keybinds['skill_3_p1'][1]) if self.skill_rect == hero2.skill_3_rect else \
+                            display_inputs(keybinds['skill_4_p1'][1]) if self.skill_rect == hero2.skill_4_rect else \
+                            display_inputs(keybinds['basic_atk_p1'][1]) if self.skill_rect == hero2.basic_icon_rect else \
+                            display_inputs(keybinds['sp_skill_p1'][1]) if self.skill_rect == hero2.special_rect else ""
+        else:
+            if player_type == 1:
+                key_text = display_inputs(keybinds['skill_1_p1'][1]) if self.skill_rect == hero1.skill_1_rect else \
+                        display_inputs(keybinds['skill_2_p1'][1]) if self.skill_rect == hero1.skill_2_rect else \
+                        display_inputs(keybinds['skill_3_p1'][1]) if self.skill_rect == hero1.skill_3_rect else \
+                        display_inputs(keybinds['skill_4_p1'][1]) if self.skill_rect == hero1.skill_4_rect else \
+                        display_inputs(keybinds['basic_atk_p1'][1]) if self.skill_rect == hero1.basic_icon_rect else \
+                        display_inputs(keybinds['sp_skill_p1'][1]) if self.skill_rect == hero1.special_rect else ""
+            elif player_type == 2:
+                key_text = display_inputs(keybinds['skill_1_p2'][1]) if self.skill_rect == hero2.skill_1_rect else \
+                        display_inputs(keybinds['skill_2_p2'][1]) if self.skill_rect == hero2.skill_2_rect else \
+                        display_inputs(keybinds['skill_3_p2'][1]) if self.skill_rect == hero2.skill_3_rect else \
+                        display_inputs(keybinds['skill_4_p2'][1]) if self.skill_rect == hero2.skill_4_rect else \
+                        display_inputs(keybinds['basic_atk_p2'][1]) if self.skill_rect == hero2.basic_icon_rect else \
+                        display_inputs(keybinds['sp_skill_p2'][1]) if self.skill_rect == hero2.special_rect else ""
 
         # Existing logic for drawing the skill icon
         if not self.special_skill:
@@ -534,21 +555,22 @@ class Attacks:
                 screen.blit(self.skill_img, self.skill_rect)
 
         # Draw the key text below the skill icon
-        key_font = global_vars.get_font(self.mana_font_size)
-        button_icon = pygame.transform.scale(self.button_icon, (90, 70))
-        # button_icon_rect = button_icon.get_rect(topleft=(key_pos_x - 10, key_pos_y - 5))
+        if key_text:
+            key_font = global_vars.get_font(self.mana_font_size)
+            button_icon = pygame.transform.scale(self.button_icon, (90, 70))
+            # button_icon_rect = button_icon.get_rect(topleft=(key_pos_x - 10, key_pos_y - 5))
 
-        key_text_render = key_font.render(key_text, True, 'azure3')
-        
-        screen.blit(button_icon, (
-            self.skill_rect.centerx - 45,
-            self.skill_rect.bottom - 20  # Position below the skill icon
-        ))
-        # print(key_font.size(key_text)[0])
-        screen.blit(key_text_render, (
-            self.skill_rect.centerx - key_text_render.get_width() // 2,
-            self.skill_rect.bottom + 5  # Position below the skill icon
-        ))
+            key_text_render = key_font.render(key_text, True, 'azure3')
+            
+            screen.blit(button_icon, (
+                self.skill_rect.centerx - 45,
+                self.skill_rect.bottom - 20  # Position below the skill icon
+            ))
+            # print(key_font.size(key_text)[0])
+            screen.blit(key_text_render, (
+                self.skill_rect.centerx - key_text_render.get_width() // 2,
+                self.skill_rect.bottom + 5  # Position below the skill icon
+            ))
 
     def draw_mana_cost(self, screen, mana):
         if not self.special_skill:
@@ -2423,7 +2445,6 @@ class PlayerSelector:
             if not self.can_move_back and not self.can_move:
                         self.can_move = True
             self.move_back_variable = False
-            print(self.can_move, self.can_move_back)
 
 
 
@@ -2492,10 +2513,8 @@ class PlayerSelector:
             if mouse_pressed[0] and self.back_button.is_clicked(mouse_pos) and self.can_move_back:
                 self.move_back_variable = True
                 self.can_move_back = False
-                print(self.can_move_back)
                 self.set_position(self.original_pos)
                 self.selected = False
-                print(self.target_pos)
                 
                     
     def draw(self):
@@ -2793,14 +2812,8 @@ def paginating(move:bool, instant:bool = False, max_height = item_max_y):
                 p1_items[i].original_pos = p1_items[i].static_pos_2
                 # p1_items[i].target_pos = p1_items[i].static_pos_1
                 if not p1_items[i].selected:
-                    # print("this item is not selected")
-                    # print(p1_items[i].static_pos_2)
-                    # print(p1_items[i].original_pos)
                     p1_items[i].set_position(p1_items[i].original_pos)
-                else:
-                    print("selected item")
             except:
-                print("out of bound")
                 break
 
         for i in range(baseline * (item_page-1), baseline * item_page):
@@ -2808,14 +2821,8 @@ def paginating(move:bool, instant:bool = False, max_height = item_max_y):
                 p2_items[i].original_pos = p2_items[i].static_pos_2
                 # p1_items[i].target_pos = p1_items[i].static_pos_1
                 if not p2_items[i].selected:
-                    # print("this item is not selected")
-                    # print(p1_items[i].static_pos_2)
-                    # print(p1_items[i].original_pos)
                     p2_items[i].set_position(p2_items[i].original_pos)
-                else:
-                    print("selected item")
             except:
-                print("out of bound")
                 break
 
 
@@ -2941,7 +2948,6 @@ def lan_connect(host_ip, port=5555, room_name=''):
     elif result == 'back_to_menu':
         return 'back_to_menu'
     else:
-        print('its me :)')
         return 'done'
 
 
@@ -3192,6 +3198,7 @@ def multiplayer_menu(notice=None):
         text_anti_alias=global_vars.TEXT_ANTI_ALIASING
     )
 
+    refreshing_start = None
     import net_server
     while True:
         mouse_pos = pygame.mouse.get_pos()
@@ -3211,6 +3218,9 @@ def multiplayer_menu(notice=None):
         )
 
         panel_rect = pygame.Rect(int(width * 0.08), int(height * 0.28), int(width * 0.44), int(height * 0.52))
+        btn_w = 110
+        btn_h = 32
+        refresh_btn_rect = pygame.Rect(panel_rect.right - 20 - btn_w, panel_rect.y + 12, btn_w, btn_h)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -3226,7 +3236,10 @@ def multiplayer_menu(notice=None):
                 # stay in this menu and show a banner; otherwise leave the menu.
                 global_vars.SINGLE_MODE_ACTIVE = False # fix bug where selecting single player, then leaving, sets the SINGLE_MODE_ACTIVE to true, even in multiplayer LAN.
                 session = None
-                if host_btn.is_clicked(event.pos):
+                if refresh_btn_rect.collidepoint(event.pos):
+                    net_client.refresh_lan_scanning()
+                    refreshing_start = pygame.time.get_ticks()
+                elif host_btn.is_clicked(event.pos):
                     net_client.stop_lan_scanning()
                     session = host_game()
                 elif direct_btn.is_clicked(event.pos):
@@ -3278,6 +3291,26 @@ def multiplayer_menu(notice=None):
         # Title of Left Panel
         panel_title = global_vars.get_font(26).render("ACTIVE LAN SESSIONS", global_vars.TEXT_ANTI_ALIASING, (180, 180, 220))
         screen.blit(panel_title, (panel_rect.x + 20, panel_rect.y + 15))
+
+        # Refresh button on top-right inside panel, aligned with title
+        is_refreshing = refreshing_start is not None and (pygame.time.get_ticks() - refreshing_start < 800)
+        ref_hovered = refresh_btn_rect.collidepoint(mouse_pos)
+
+        if is_refreshing:
+            ref_bg = (30, 45, 35)
+            ref_border = (80, 200, 120)
+            ref_color = (120, 240, 150)
+            ref_label = "SCANNING..."
+        else:
+            ref_bg = (45, 50, 65) if ref_hovered else (25, 28, 35)
+            ref_border = gold if ref_hovered else (60, 65, 80)
+            ref_color = gold if ref_hovered else (180, 180, 220)
+            ref_label = "REFRESH"
+
+        pygame.draw.rect(screen, ref_bg, refresh_btn_rect, border_radius=4)
+        pygame.draw.rect(screen, ref_border, refresh_btn_rect, 2, border_radius=4)
+        ref_text = global_vars.get_font(18).render(ref_label, global_vars.TEXT_ANTI_ALIASING, ref_color)
+        screen.blit(ref_text, (refresh_btn_rect.centerx - ref_text.get_width() // 2, refresh_btn_rect.centery - ref_text.get_height() // 2))
 
         # Draw active rooms inside panel
         room_y = panel_rect.y + 60
@@ -3580,24 +3613,27 @@ def player_selection(net_client=None):
                         # print("Opponent left detected in player_selection")
                         return 'opponent_left'
                     else:
-                        print('going back to menu?')
                         return 'back_to_menu'
 
-                if all_items_button.is_clicked(event.pos):
-                    if player_2_choose:
-                        global_vars.all_items = all_items_button.toggle(global_vars.all_items)
-                if x2_bot.is_clicked(event.pos):
-                    if player_2_choose:
-                        global_vars.toggle_hero3 = x2_bot.toggle(global_vars.toggle_hero3)
+                # Single-player fun options (All Items, 2x Bot)
+                if global_vars.SINGLE_MODE_ACTIVE:
+                    if all_items_button.is_clicked(event.pos):
+                        if player_2_choose:
+                            global_vars.all_items = all_items_button.toggle(global_vars.all_items)
+                    if x2_bot.is_clicked(event.pos):
+                        if player_2_choose:
+                            global_vars.toggle_hero3 = x2_bot.toggle(global_vars.toggle_hero3)
+                # Toggle Bot: single-player only, never in LAN
+                if global_vars.SINGLE_MODE_ACTIVE and global_vars.active_net_client is None:
+                    if toggle_bot_button.is_clicked(event.pos):
+                        if player_1_choose:
+                            global_vars.HERO1_BOT = toggle_bot_button.toggle(global_vars.HERO1_BOT)
                 if random_p1.is_clicked(event.pos):
                     if player_1_choose:
                         global_vars.random_pick_p1 = random_p1.toggle(global_vars.random_pick_p1)
                 if random_p2.is_clicked(event.pos):
                     if player_2_choose:
                         global_vars.random_pick_p2 = random_p2.toggle(global_vars.random_pick_p2)
-                if toggle_bot_button.is_clicked(event.pos):
-                    if player_1_choose:
-                        global_vars.HERO1_BOT = toggle_bot_button.toggle(global_vars.HERO1_BOT)
                 if random_p1_item.is_clicked(event.pos):
                     if player_1_choose:
                         global_vars.random_item_pick_p1 = random_p1_item.toggle(global_vars.random_item_pick_p1)
@@ -3624,9 +3660,10 @@ def player_selection(net_client=None):
             else: #display selected hero name
                 create_title(get_name(PLAYER_1_SELECTED_HERO.__name__), font, default_size, height * 0.1, modify_xpos=width*0.5)
                 
-            # hero1 bot Option (has all_items) draws hard mode option
-            toggle_bot_button.update(mouse_pos, global_vars.HERO1_BOT)
-            toggle_bot_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
+            # Toggle Bot: only show in single-player, never in LAN
+            if global_vars.SINGLE_MODE_ACTIVE and global_vars.active_net_client is None:
+                toggle_bot_button.update(mouse_pos, global_vars.HERO1_BOT)
+                toggle_bot_button.draw(screen, global_vars.TEXT_ANTI_ALIASING)
             
             random_p1.update(mouse_pos, global_vars.random_pick_p1)
             random_p1.draw(screen, global_vars.TEXT_ANTI_ALIASING)

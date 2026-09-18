@@ -607,7 +607,6 @@ class Yurei(Player):
                         if pygame.time.get_ticks() >= self.invisible_duration:
                             self.invisible = False
                             index = len(frames) - 1  # Stay on the last frame
-                            print('end of invi')
                             return index, index, False  # set index for normal and flipped frames
                     else:
                         index = len(frames) - 1  # Stay on the last frame

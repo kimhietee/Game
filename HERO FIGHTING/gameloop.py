@@ -1215,7 +1215,7 @@ def game(bg=None, net_client=None):
         p2.x_pos = width-300
 
 
-    disable_debug = False
+    disable_debug = not getattr(global_vars, 'DEV_MODE', False)
     while True:
         # print(main.hero1.mana)
         
@@ -1668,10 +1668,9 @@ def game(bg=None, net_client=None):
             # Update and draw Wanderer Magician
             # main.hero3_group.draw(main.screen)
             # main.hero3_group.update()
-            # if not main.hero2.is_dead():
-            if hero2 is not None:
-                if hero2.target is not None:
-                    print(hero2.target.name, hero2.target.player_type, 'hero2')
+            # if hero2 is not None:
+            #     if hero2.target is not None:
+            #         print(hero2.target.name, hero2.target.player_type, 'hero2')
             # {("Burner"), ("damage") ("$damage", "red")}
 
             
@@ -1985,11 +1984,8 @@ def battle_end(mouse_pos, mouse_press, font=None, default_size = ((width * DEFAU
         if mouse_press[0] and menu_game.is_clicked(mouse_pos):
             paused = False
             if global_vars.active_net_client is not None and global_vars.active_net_client.opponent_left:
-                print(f'I am leaving good luck everybody')
-                print("Opponent left detected in player_selection")
                 return 'opponent_left'
             else:
-                print('going back to menu?')
                 return 'back_to_menu'
 
         if mouse_press[0] and rematch_game.is_clicked(mouse_pos):

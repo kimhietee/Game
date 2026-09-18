@@ -279,35 +279,38 @@ def _udp_listen_loop():
         return
 
     sock.settimeout(1.0)
-    while _udp_listener_running:
-        try:
-            data, addr = sock.recvfrom(1024)
-            msg = data.decode('utf-8')
-            if msg.startswith("HERO_FIGHTING_LOBBY:"):
-                parts = msg.split(':')
-                if len(parts) >= 3:
-                    ip = parts[1]
-                    try:
-                        port = int(parts[2])
-                    except (ValueError, IndexError):
-                        port = 5555
-                    # Optional 4th field: a percent-encoded human-readable room
-                    # name. Older hosts omit it, so fall back to a blank name.
-                    room_name = ''
-                    if len(parts) >= 4 and parts[3]:
-                        from urllib.parse import unquote
-                        room_name = unquote(parts[3])
-                    # Key by ip:port so two hosts on the same machine (different
-                    # ports) show up as two distinct rooms instead of colliding.
-                    key = f"{ip}:{port}"
-                    server_name = room_name if room_name else f"My Room"
-                    with discovered_servers_lock:
-                        discovered_servers[key] = (server_name, ip, port, time.time())
-        except socket.timeout:
-            pass
-        except Exception:
-            break
-    sock.close()
+    try:
+        while _udp_listener_running:
+            try:
+                data, addr = sock.recvfrom(1024)
+                msg = data.decode('utf-8')
+                if msg.startswith("HERO_FIGHTING_LOBBY:"):
+                    parts = msg.split(':')
+                    if len(parts) >= 3:
+                        ip = parts[1]
+                        try:
+                            port = int(parts[2])
+                        except (ValueError, IndexError):
+                            port = 5555
+                        # Optional 4th field: a percent-encoded human-readable room
+                        # name. Older hosts omit it, so fall back to a blank name.
+                        room_name = ''
+                        if len(parts) >= 4 and parts[3]:
+                            from urllib.parse import unquote
+                            room_name = unquote(parts[3])
+                        # Key by ip:port so two hosts on the same machine (different
+                        # ports) show up as two distinct rooms instead of colliding.
+                        key = f"{ip}:{port}"
+                        server_name = room_name if room_name else f"My Room"
+                        with discovered_servers_lock:
+                            discovered_servers[key] = (server_name, ip, port, time.time())
+            except socket.timeout:
+                pass
+            except Exception:
+                break
+    finally:
+        _udp_listener_running = False
+        sock.close()
 
 def start_lan_scanning():
     global _udp_listener_thread, _udp_listener_running, discovered_servers
@@ -318,6 +321,16 @@ def start_lan_scanning():
     _udp_listener_running = True
     _udp_listener_thread = threading.Thread(target=_udp_listen_loop, daemon=True)
     _udp_listener_thread.start()
+
+def refresh_lan_scanning():
+    """Clear discovered server cache and ensure scanning thread is actively running."""
+    global _udp_listener_thread, _udp_listener_running, discovered_servers
+    with discovered_servers_lock:
+        discovered_servers.clear()
+    if not _udp_listener_running or _udp_listener_thread is None or not _udp_listener_thread.is_alive():
+        _udp_listener_running = True
+        _udp_listener_thread = threading.Thread(target=_udp_listen_loop, daemon=True)
+        _udp_listener_thread.start()
 
 def stop_lan_scanning():
     global _udp_listener_running, _udp_listener_thread

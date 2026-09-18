@@ -783,7 +783,6 @@ class Fire_Knight(Player):
                 elif hotkey3 and not self.attacking3 and not self.attacking1 and not self.attacking2 and not self.sp_attacking and not self.basic_attacking:
                     if self.mana >=  self.attacks[2].mana_cost and self.attacks[2].is_ready():
                         # Create an attack
-                        print("Z key pressed")
                         attack = Attack_Display(
                             x=self.rect.centerx + 180 if self.facing_right else self.rect.centerx - 180, # in front of him
                             y=self.rect.centery + 30,
@@ -1031,7 +1030,6 @@ class Fire_Knight(Player):
                 elif hotkey3 and not self.attacking3 and not self.attacking1 and not self.attacking2 and not self.sp_attacking and not self.basic_attacking:
                     if self.mana >=  self.attacks_special[2].mana_cost and self.attacks_special[2].is_ready():
                         # Create an attack
-                        print("Z key pressed")
                         attack = Attack_Display(
                             x=self.rect.centerx + 130 if self.facing_right else self.rect.centerx - 130, # in front of him
                             y=self.rect.centery + 30,

@@ -38,6 +38,7 @@ gold = 'Gold' #special
 
 IMMEDIATE_RUN = False
 active_net_client = None
+DEV_MODE = False  # Master switch for developer mode (debug hotkeys 1-6, dev options, etc.)
 
 HERO1_BOT = False
 all_items = False #equip bot with all items
@@ -52,7 +53,7 @@ random_item_pick_p1 = False
 random_item_pick_p2 = False 
 
 
-MAIN_VOLUME = 0.01
+MAIN_VOLUME = 0.85
 TEXT_ANTI_ALIASING = False
 SMOOTH_BG = True
 MAX_ITEM = 4

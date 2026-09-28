@@ -19,6 +19,7 @@ class NetClient:
         self.p1_keys = {}
         self.p2_keys = {}
         self._lock = threading.Lock()
+        self._pressed_acc = {}  # rising-edge accumulator for skill keys
         self._running = False
         # ── Phase 2: lobby state ──
         self.map_selected = None
@@ -89,8 +90,23 @@ class NetClient:
         """Returns (p1_keys, p2_keys) -- latest known inputs for both players."""
         with self._lock:
             return dict(self.p1_keys), dict(self.p2_keys)
-        
-        
+
+    def get_opponent_keys(self):
+        """Return opponent's keys with any latched rising-edges merged in.
+        Quick key taps that were overwritten between game-loop frames are
+        preserved here so the rising-edge detector never misses them."""
+        with self._lock:
+            keys = (self.p2_keys if self.my_player_type == 1 else self.p1_keys).copy()
+            for k, v in self._pressed_acc.items():
+                if v:
+                    keys[k] = True
+            return keys
+
+    def consume_opponent_presses(self):
+        """Clear latched presses after the game loop has read them."""
+        with self._lock:
+            self._pressed_acc.clear()
+
 
     # ── Phase 2: lobby send methods ──
     def send_map(self, map_name):
@@ -182,8 +198,17 @@ class NetClient:
                 self.phase = 'lobby'
             elif message_type == 'inputs':
                 with self._lock:
-                    self.p1_keys = msg.get('p1', {})
-                    self.p2_keys = msg.get('p2', {})
+                    new_p1 = msg.get('p1', {})
+                    new_p2 = msg.get('p2', {})
+                    # Determine which keys are the opponent's
+                    old_opp = self.p2_keys if self.my_player_type == 1 else self.p1_keys
+                    new_opp = new_p2 if self.my_player_type == 1 else new_p1
+                    # Latch rising edges for skill keys so quick taps aren't lost
+                    for k in ('skill1', 'skill2', 'skill3', 'skill4', 'special', 'basic'):
+                        if new_opp.get(k) and not old_opp.get(k):
+                            self._pressed_acc[k] = True
+                    self.p1_keys = new_p1
+                    self.p2_keys = new_p2
             elif message_type == 'opponent_left':
                 if self._running:
                     self.phase = 'lobby'

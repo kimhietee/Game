@@ -1049,7 +1049,18 @@ def apply_hero_game_state(h, s):
     h.slowed    = s['slowed']
     h.slow_speed = s['slow_speed']
     h.silenced  = s['silenced']
-    h.stunned   = s['stunned']
+    # ── Stun/airborne sync ──
+    # Stun works by setting jumping=True and lifting the hero into the air.
+    # Without syncing jumping + y_pos, the client's ground-check instantly
+    # clears stunned=False because the hero is still on the ground locally.
+    if s['stunned'] and not h.jumping:
+        # Stun onset — force the airborne state from the host snapshot
+        h.stunned = True
+        h.jumping = True
+        h.y_pos = s['y']
+        h.y_velocity = s.get('yv', 0)
+    else:
+        h.stunned = s['stunned']
     if hasattr(h, 'hasted'):    h.hasted    = s.get('hasted',    None)
     if hasattr(h, 'flying'):    h.flying    = s.get('flying',    None)
     if hasattr(h, 'invisible'): h.invisible = s.get('invisible', None)
@@ -1057,16 +1068,23 @@ def apply_hero_game_state(h, s):
     h.immortality_activated = s['immortality_activated']
     h.immortality_duration  = s['immortality_duration']
     # ── Cooldowns ──
+    # A 300ms protection window prevents the host from resetting a cooldown
+    # that we just started locally (the input is still in-flight to the host).
     now = pygame.time.get_ticks()
     for i, cd in enumerate(s.get('skills_cd', [])):
         if i < len(h.attacks):
             skill = h.attacks[i]
+            # Protect locally-started cooldowns from being reset while input is in-flight
+            if cd == 0 and skill.get_skill_cooldown() > 0 and skill.time_since_use() < 300:
+                continue
             elapsed = max(0, skill.cooldown - int(cd))
             skill.last_used_time = now - elapsed
             skill.remaining_ms   = cd
     for i, cd in enumerate(s.get('special_skills_cd', [])):
         if i < len(h.attacks_special):
             skill = h.attacks_special[i]
+            if cd == 0 and skill.get_skill_cooldown() > 0 and skill.time_since_use() < 300:
+                continue
             elapsed = max(0, skill.cooldown - int(cd))
             skill.last_used_time = now - elapsed
             skill.remaining_ms   = cd
@@ -1477,9 +1495,16 @@ def game(bg=None, net_client=None):
                 p1_keys, p2_keys = global_vars.active_net_client.get_inputs()
                 my_type = global_vars.active_net_client.my_player_type
 
-                # Both hero1 and hero2 get their inputs from the server
-                main.hero1._net_keys = p1_keys
-                main.hero2._net_keys = p2_keys
+                # Own hero uses server-echo keys (overridden by local keyboard in player.py).
+                # Opponent hero uses get_opponent_keys() which merges latched rising-edges
+                # so that quick skill taps are never lost between game-loop frames.
+                if my_type == 1:
+                    main.hero1._net_keys = p1_keys
+                    main.hero2._net_keys = global_vars.active_net_client.get_opponent_keys()
+                else:
+                    main.hero1._net_keys = global_vars.active_net_client.get_opponent_keys()
+                    main.hero2._net_keys = p2_keys
+                global_vars.active_net_client.consume_opponent_presses()
 
                 # Send MY keys to server this frame
                 keybinds = key.read_settings()
@@ -1590,12 +1615,14 @@ def game(bg=None, net_client=None):
                         # P1 is damage-authoritative so we only sync movement/facing from P2's data.
                         h2_recv = latest_st.get('h2')
                         if h2_recv and main.hero2 is not None:
-                            x2, y2 = interp_xy(prev_st, latest_st, prev_t, latest_t, 'h2', render_time)
-                            # Sync position/movement from P2's self-reported state.
-                            # HP/cooldowns are NOT overwritten here — P1 is authoritative for those.
-                            if x2 is not None: main.hero2.x_pos = x2
-                            if y2 is not None: main.hero2.y_pos = y2
-                            main.hero2.y_velocity   = h2_recv.get('yv',          main.hero2.y_velocity)
+                            # Don't let P2's self-reported position override a stun/airborne
+                            # that P1 (the authority) applied — P2's client hasn't received
+                            # the stun yet and would snap hero2 back to the ground.
+                            if not main.hero2.stunned:
+                                x2, y2 = interp_xy(prev_st, latest_st, prev_t, latest_t, 'h2', render_time)
+                                if x2 is not None: main.hero2.x_pos = x2
+                                if y2 is not None: main.hero2.y_pos = y2
+                                main.hero2.y_velocity   = h2_recv.get('yv',          main.hero2.y_velocity)
                             main.hero2.facing_right  = h2_recv.get('facing_right', main.hero2.facing_right)
                             main.hero2.running       = h2_recv.get('running',      main.hero2.running)
 
